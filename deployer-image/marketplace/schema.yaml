@@ -1,195 +1,53 @@
-applicationApiVersion: app.k8s.io/v1beta1
-applicationKind: Application
-
 x-google-marketplace:
   schemaVersion: v2
+  partnerId: "my-partner-id"  # Replace with your actual Partner ID
+  solutionId: "my-product-id" # Replace with your actual Product ID
   applicationApiVersion: v1beta1
-  displayName: "Your Application Name"
-  description: "A brief description of your application."
-  publishedVersion: "1.0.0"
+  publishedVersion: '0.1.0'
   publishedVersionMetadata:
-    releaseNote: >-
-      Initial release with basic functionality and parameterization.
-    releaseTypes:
-      - Feature
-    recommended: true
+    releaseNote: "Initial release with Job support."
   images:
-    main:
+    terraformRunner:
       properties:
-        imageRepo:
-          type: REPO_WITH_REGISTRY
-        imageTag:
-          type: TAG
-    deployer:
-      properties:
-        imageRepo:
-          type: REPO_WITH_REGISTRY
-          default: "gcr.io/platform-439702/terraform-deployer/deployer"
-        imageTag:
-          type: TAG
-          default: "2.9"
+        terraformRunnerImage:
+          type: FULL
 
 properties:
   name:
     type: string
-    title: Application Name
-    description: The name of your application instance.
     x-google-marketplace:
       type: NAME
-
   namespace:
     type: string
-    title: Namespace
-    description: The namespace for your application instance.
     x-google-marketplace:
       type: NAMESPACE
-
-  project_id:
+  projectId:
     type: string
-    default: "platform-439702"
-    title: Project ID
-    description: The ID of your Google Cloud project.
-
+    title: GCP Project ID
+    description: Google Cloud project ID.
   region:
     type: string
-    default: "us-central1"
-    title: Region
-    description: The region where your application will be deployed.
-    enum:
-      - us-central1
-      - us-east1
-      - europe-west1
-
-  suffix:
-    type: string
-    default: "refined"
-    title: Suffix
-    description: A suffix for your application instance.
-
+    title: GCP Region
+    description: Deployment region.
   domain:
     type: string
-    default: "test.app"
     title: Domain
-    description: The domain for your application instance.
-
-  STACKGEN_PAT:
+    description: Domain for deployment.
+  stackgenPat:
     type: string
-    default: "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"
-    title: StackGen PAT
-    description: Your StackGen personal access token.
-    x-google-marketplace:
-      type: MASKED_FIELD
+    title: Stackgen Personal Access Token
+    description: Access token for Stackgen.
 
-rbac:
-  clusterRole:
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRole
-    metadata:
-      name: terraform-runner-clusterrole
-    rules:
-      # This rule covers certain core API resources across *all* namespaces.
-      # Add or remove resources/verbs as needed for your use case.
-    - apiGroups: [""]
-      resources:
-        - namespaces
-        - secrets
-        - configmaps
-        - services
-        - pods
-        - persistentvolumeclaims
-        - serviceaccounts
-      verbs:
-        - create
-        - delete
-        - get
-        - list
-        - patch
-        - update
-        - watch
-
-      # If you need to manage CRDs or other resources from "apps" API group, add another rule:
-    - apiGroups: ["apps"]
-      resources:
-        - deployments
-        - statefulsets
-        - daemonsets
-        - replicasets
-      verbs:
-        - create
-        - delete
-        - get
-        - list
-        - patch
-        - update
-        - watch
-
-    - apiGroups: ["networking.k8s.io"]
-      resources:
-        - networkpolicies
-        - ingresses
-      verbs:
-        - get
-        - list
-        - watch
-        - create
-        - update
-        - patch
-        - delete
-
-    - apiGroups: ["policy"]
-      resources:
-        - poddisruptionbudgets
-      verbs:
-        - get
-        - list
-        - watch
-        - create
-        - delete
-        - patch
-        - update
-
-    - apiGroups: ["batch"]
-      resources:
-        - jobs
-      verbs:
-        - get
-        - list
-        - watch
-        - create
-        - update
-        - patch
-        - delete
-
-    - apiGroups: ["autoscaling"]
-      resources:
-        - horizontalpodautoscalers
-      verbs:
-        - create
-        - delete
-        - get
-        - list
-        - patch
-        - update
-        - watch
-
-  clusterRoleBinding:
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
-    metadata:
-      name: terraform-runner-crb
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: terraform-runner-clusterrole
-    subjects:
-      - kind: ServiceAccount
-        name: "terraform-runner"
-        namespace: "default"
+  # Example of a potential additional property (if needed):
+  replicas:
+    type: integer
+    title: Job Replica Count
+    description: Number of job replicas to deploy.
 
 required:
   - name
-  - project_id
+  - namespace
+  - projectId
   - region
-  - suffix
   - domain
-  - STACKGEN_PAT
+  - stackgenPat

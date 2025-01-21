@@ -4,12 +4,15 @@
 BIN_DIR := $(HOME)/bin
 MPDEV := $(BIN_DIR)/mpdev
 SCHEMA_FILE := marketplace/schema.yaml
+MANIFEST_DIR := marketplace/manifests
 
-# Default values for install and verify commands
-DEPLOYER_IMAGE ?= gcr.io/platform-439702/terraform-deployer/deployer:2.9
+# Default values for build, install, and verify commands
+REGISTRY ?= gcr.io/platform-439702
+APP_NAME ?= terraform-deployer
+DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_NAME):latest
 WAIT_TIMEOUT ?= 600
 
-# Environment variables for parameters
+# Parameters for mpdev install
 PROJECT_ID ?= "platform-439702"
 REGION ?= "us-central1"
 SUFFIX ?= "refined"
@@ -18,12 +21,20 @@ STACKGEN_PAT ?= "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"
 NAME ?= "my-app-instance"
 NAMESPACE ?= "default"
 
-# Construct PARAMETERS JSON including the env list
-PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "env": [{"name": "PROJECT_ID", "value": "%s"}, {"name": "REGION", "value": "%s"}, {"name": "SUFFIX", "value": "%s"}, {"name": "DOMAIN", "value": "%s"}, {"name": "STACKGEN_PAT", "value": "%s"}]}' $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(SUFFIX) $(DOMAIN) $(STACKGEN_PAT))
+# Construct PARAMETERS JSON for mpdev install
+PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s"}' \
+  $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(DOMAIN) $(STACKGEN_PAT))
 
-.PHONY: all setup doctor install-deployment verify validate help
+.PHONY: all setup doctor install-deployment verify validate render-manifests apply-manifests help
 
 all: help
+
+build:
+	@echo "Building deployer image: $(DEPLOYER_IMAGE)"
+	@docker buildx build \
+	  --platform linux/amd64 \
+	  -t $(DEPLOYER_IMAGE) \
+	  --push .
 
 # Target to set up mpdev binary in ~/bin
 setup:
@@ -38,11 +49,14 @@ doctor:
 	@echo "Running mpdev doctor..."
 	@$(MPDEV) doctor
 
-# Install an application using provided deployer image and parameters including env variables
-install-deployment:
+# Install an application using provided deployer image and parameters
+install:
 	@echo "Installing application with deployer: $(DEPLOYER_IMAGE)"
-	@echo "Using parameters: $(PARAMETERS)"
-	@$(MPDEV) install --deployer=$(DEPLOYER_IMAGE) --parameters='$(PARAMETERS)'
+	@echo "Using parameters:"
+	@echo $(PARAMETERS)
+	@$(MPDEV) install \
+	  --deployer=$(DEPLOYER_IMAGE) \
+	  --parameters='$(PARAMETERS)'
 
 # Verify an application deployment
 verify:
@@ -54,14 +68,31 @@ validate:
 	@echo "Validating schema file: $(SCHEMA_FILE)"
 	@$(MPDEV) validate --schema=$(SCHEMA_FILE)
 
+# Render Kubernetes manifest templates
+render-manifests:
+	@echo "Rendering manifest templates from: $(MANIFEST_DIR)"
+	@for template in $(MANIFEST_DIR)/*.yaml.template; do \
+		echo "Rendering $$template..."; \
+		envsubst < $$template > $$(echo $$template | sed 's/.template$$//'); \
+	done
+	@echo "Rendered manifests are ready."
+
+# Apply rendered Kubernetes manifests to the cluster
+apply-manifests: render-manifests
+	@echo "Applying rendered manifests..."
+	@kubectl apply -f $(MANIFEST_DIR)
+	@echo "Manifests applied successfully."
+
 # Display usage information
 help:
 	@echo "Available targets:"
 	@echo "  setup             - Setup the mpdev tool"
 	@echo "  doctor            - Diagnose your environment using mpdev doctor"
-	@echo "  install-deployment- Install an application using mpdev install with environment variables"
-	@echo "                      (override environment variables like PROJECT_ID, REGION, etc. as needed)"
+	@echo "  install-deployment- Install an application using mpdev install with parameters"
+	@echo "                      (override NAME, NAMESPACE, PROJECT_ID, REGION, etc. as needed)"
 	@echo "  verify            - Verify an application using mpdev verify"
 	@echo "                      (use DEPLOYER_IMAGE and WAIT_TIMEOUT variables to override defaults)"
 	@echo "  validate          - Validate the schema.yaml file using mpdev validate"
+	@echo "  render-manifests  - Render Kubernetes manifest templates by substituting variables"
+	@echo "  apply-manifests   - Render and apply Kubernetes manifests to the cluster"
 	@echo "  help              - Display this help message"

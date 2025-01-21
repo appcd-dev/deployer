@@ -3,8 +3,7 @@ set -e
 
 echo ">>> Running Terraform with variables from environment"
 
-cd /app/terraform
-
+cd /data/terraform
 # Initialize Terraform
 terraform init
 

@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: $name-job
+  namespace: $namespace
+  labels:
+    app.kubernetes.io/instance: $name
+spec:
+  template:
+    spec:
+      serviceAccountName: terraform-runner
+      restartPolicy: Never
+      containers:
+        - name: terraform-runner
+          image: $terraformRunnerImage
+          env:
+            - name: PROJECT_ID
+              value: $projectId
+            - name: REGION
+              value: $region
+            - name: SUFFIX
+              value: $region
+            - name: DOMAIN
+              value: $domain
+            - name: STACKGEN_PAT
+              value: $stackgenPat
