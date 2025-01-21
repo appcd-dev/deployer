@@ -1,16 +1,22 @@
 # Use an official Terraform base image
 FROM hashicorp/terraform:1.5.3
+
+# Install necessary dependencies
 RUN apk add --no-cache bash
 
 # Set a working directory inside the container
 WORKDIR /app
 
-# Copy your entire terraform folder into the container
+# Copy Terraform configurations into the container
 COPY terraform/ /app/terraform
 
-# Copy any extra scripts (e.g., deploy.sh) if you want to use them
-COPY scripts/deploy.sh /app/scripts/deploy.sh
-RUN chmod +x /app/scripts/deploy.sh
+# Copy the deploy.sh script into the container
+COPY scripts/deploy.sh /bin/deploy.sh
+RUN chmod +x /bin/deploy.sh
 
-# Option 1: Directly run deploy.sh as entrypoint
-ENTRYPOINT ["/app/scripts/deploy.sh"]
+# Create the /data directory and copy schema.yaml
+RUN mkdir -p /data
+COPY marketplace/schema.yaml /data/schema.yaml
+
+# Set the deploy.sh script as the entrypoint
+ENTRYPOINT ["/bin/deploy.sh"]

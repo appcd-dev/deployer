@@ -2,6 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: terraform-runner-clusterrole
+  labels:
+    app.kubernetes.io/instance: stackgen-app-deployment
 rules:
   # This rule covers certain core API resources across *all* namespaces.
   # Add or remove resources/verbs as needed for your use case.
@@ -94,6 +96,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: terraform-runner-crb
+  labels:
+    app.kubernetes.io/instance: stackgen-app-deployment
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

@@ -1,27 +1,24 @@
 apiVersion: app.k8s.io/v1beta1
 kind: Application
 metadata:
-  name: "stackgen-app-deployment"
+  name: stackgen-app-deployment
 spec:
+  addOwnerRef: true
   descriptor:
     version: "1.0.0"
     description: "Deploys infrastructure and applications with Terraform"
     type: "stackgen"
-  addOwnerReference: true
-  components:
-    - name: "stackgen-app-deployment-rbac"
-      version: "1.0.0"
-      type: "rbac"
-      properties:
-        k8s:
-          resources:
-            - name: "rbac"
-              manifest: "manifests/rbac.yaml"
-    - name: "stackgen-app-deployment-job"
-      version: "1.0.0"
-      type: "application"
-      properties:
-        k8s:
-          resources:
-            - name: "terraform-job"
-              manifest: "manifests/terraform-job.yaml"
+  componentKinds:
+    - group: ""            
+      kind: "Job"
+    - group: "rbac.authorization.k8s.io"
+      kind: "Role"
+    - group: "rbac.authorization.k8s.io"
+      kind: "RoleBinding"
+    - group: "rbac.authorization.k8s.io"   # Add these lines
+      kind: "ClusterRole"
+    - group: "rbac.authorization.k8s.io"
+      kind: "ClusterRoleBinding"
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: stackgen-app-deployment

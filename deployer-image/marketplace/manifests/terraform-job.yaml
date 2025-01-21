@@ -3,6 +3,8 @@ kind: Job
 metadata:
   name: terraform-job
   namespace: default
+  labels:
+    app.kubernetes.io/instance: stackgen-app-deployment
 spec:
   template:
     spec:
@@ -10,7 +12,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: terraform-runner
-        image: "gcr.io/platform-439702/terraform-deployer:latest"
+        image: "gcr.io/platform-439702/terraform-deployer:1.0"
         env:
           - name: PROJECT_ID
             value: "[project_id]"   # placeholder matches the name in schema.yaml
