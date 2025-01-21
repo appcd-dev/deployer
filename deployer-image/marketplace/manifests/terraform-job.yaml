@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: terraform-job
+  namespace: default
+spec:
+  template:
+    spec:
+      serviceAccountName: terraform-runner
+      restartPolicy: Never
+      containers:
+      - name: terraform-runner
+        image: "gcr.io/platform-439702/terraform-deployer:latest"
+        env:
+          - name: PROJECT_ID
+            value: "[project_id]"   # placeholder matches the name in schema.yaml
+          - name: REGION
+            value: "[region]"
+          - name: SUFFIX
+            value: "[region]"
+          - name: DOMAIN
+            value: "[domain]"
+          # For PAT, typically you'd use a Secret, but as an example:
+          - name: STACKGEN_PAT
+            value: "[STACKGEN_PAT]"

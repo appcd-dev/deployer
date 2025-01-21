@@ -1,0 +1,112 @@
+rbac:
+  createClusterScoped: false
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+env:
+  APPCD_HOST: ${host_domain}
+  DEX_API_CONNECTORS_CRUD: true
+envFrom:
+  - secretRef:
+      name: appcd-scm-secrets
+  - secretRef:
+      name: appcd-secrets
+replicaCount: 2
+https:
+  enabled: false
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: ${host_domain}
+      paths:
+        - path: /auth
+          pathType: Prefix
+  annotations:
+    nginx.org/mergeable-ingress-type: minion
+grpc:
+  enabled: true
+volumeMounts:
+  - name: dex-configmap
+    mountPath: /srv/dex/web/themes/dark/styles.css
+    subPath: stylecss
+    readOnly: true
+  - name: dex-configmap
+    mountPath: /srv/dex/web/templates/header.html
+    subPath: header
+    readOnly: true
+  - name: dex-configmap
+    mountPath: /srv/dex/web/templates/footer.html
+    subPath: footer
+    readOnly: true
+  - name: dex-configmap
+    mountPath: /srv/dex/web/templates/login.html
+    subPath: login
+    readOnly: true
+  - name: dex-configmap
+    mountPath: /srv/dex/web/templates/banner.html
+    subPath: banner
+    readOnly: true
+  - name: dex-metadata
+    mountPath: /data/config
+    readOnly: true
+volumes:
+  - name: dex-configmap
+    defaultMode: 420
+    configMap:
+      name: dex-configmap
+  - name: dex-metadata
+    defaultMode: 420
+    configMap:
+      name: dex-metadata
+      optional: true
+config:
+  issuer: https://${host_domain}/auth
+  frontend:
+    logoURL: "https://appcd.com/hubfs/StackGen%20Logos/StackGen-Logo-CMYK-080124_Primary-Horz-Dark-Background.png"
+    theme: dark
+    issuer: StackGen
+    dir: /srv/dex/web
+  storage:
+    type: postgres
+    config:
+      host: $rds_endpoint
+      port: 5432
+      database: dex
+      user: $rds_username
+      password: $rds_password
+      ssl:
+        mode: disable
+
+  # Configuration for the HTTP endpoints.
+  web:
+    http: 0.0.0.0:5556
+  # Configuration for telemetry
+  telemetry:
+    http: 0.0.0.0:5558
+  logger:
+    level: "debug"
+    format: "json"
+  staticClients:
+    - name: appCD
+      IDEnv: appcd_client_id
+      secretEnv: appcd_client_secret
+      redirectURIs:
+        - https://${host_domain}/appcd/api/v1/auth/callback/sso
+    - name: AppCD_CLI
+      ID: alpha_appcd_cli_id
+      Secret: alpha_appcd_cli_secret
+      public: true
+  grpc:
+    addr: 127.0.0.1:5557
+  oauth2:
+    skipApprovalScreen: true
+    grantTypes:
+      - "authorization_code"
+  connectors:
+    - type: ${appcd_authentication_type}
+      id: auth
+      name: appCD Auth
+      config:
+        ${appcd_authentication_config}
+  # Lets NOT dex keep a list of passwords which can be used to login to dex.
+  enablePasswordDB: false

@@ -1,0 +1,46 @@
+{
+  "applicationApiVersion": "app.k8s.io/v1beta1",
+  "applicationKind": "Application",
+  "properties": [
+    {
+      "name": "project_id",
+      "type": "string",
+      "default": "platform-439702",
+      "x-google-marketplace": {
+        "type": "NAME"
+      }
+    },
+    {
+      "name": "region",
+      "type": "string",
+      "default": "us-central1",
+      "x-google-marketplace": {
+        "type": "NAME"
+      }
+    },
+    {
+      "name": "suffix",
+      "type": "string",
+      "default": "top",
+      "x-google-marketplace": {
+        "type": "NAME"
+      }
+    },
+    {
+      "name": "domain",
+      "type": "string",
+      "default": "example.com",
+      "x-google-marketplace": {
+        "type": "NAME"
+      }
+    },
+    {
+      "name": "STACKGEN_PAT",
+      "type": "string",
+      "default": "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",
+      "x-google-marketplace": {
+        "type": "PASSWORD"
+      }
+    }
+  ]
+}

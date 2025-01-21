@@ -1,0 +1,18 @@
+appcd:
+  image:
+    tag: v2025.1.1
+appcd-ui:
+  image:
+    tag: v0.10.11
+iac-gen:
+  image:
+    tag: v0.22.0
+exporter:
+  helm_workload_5a048be506c75a07b1aeec33d33e56e3:
+    image_tag: v0.4.0
+llm-gateway:
+  helm_workload_dfed25673ac0566ba2866100c76013de:
+    image_tag: v0.2.3
+stackgen-vault:
+  helm_workload_54a040c89d8252de9a426f2ad1f92af6:
+    image_tag: v0.1.0
