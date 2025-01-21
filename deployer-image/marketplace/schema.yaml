@@ -27,7 +27,7 @@ properties:
 
   - name: STACKGEN_PAT
     type: string
-    default: "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"
+    default: ""
     x-google-marketplace:
       # 'type: SERVICE_ACCOUNT_KEY' etc. are for special fields. 
       # For a generic string or token, you can still store it as a SECRET / PASSWORD type.
