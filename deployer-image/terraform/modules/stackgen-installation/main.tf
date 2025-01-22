@@ -17,18 +17,11 @@ locals {
 
 
 
-module "stackgen-identity" {
-  depends_on = [
-    kubernetes_namespace.this,
-  ]
-  source     = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
-  version    = "v34.0.0"
-  name       = local.appcd_service_account
-  namespace  = var.namespace
-  project_id = var.project_id
-  roles = [
-    "roles/storage.admin"
-  ]
+resource "kubernetes_service_account" "stackgen_identity" {
+  metadata {
+    name      = local.appcd_service_account
+    namespace = var.namespace
+  }
 }
 
 
@@ -240,7 +233,7 @@ locals {
 
 resource "helm_release" "stackgen" {
   depends_on = [
-    module.stackgen-identity,
+    kubernetes_service_account.stackgen_identity,
   ]
   name      = local.release_name
   chart     = "appcd-dist-${var.stackgen_version}.tgz"

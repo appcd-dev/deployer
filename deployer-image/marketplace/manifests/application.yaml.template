@@ -10,14 +10,10 @@ metadata:
 spec:
   descriptor:
     type: terraform-runner
-    version: "0.1.0"
+    version: "0.1.13"
   selector:
     matchLabels:
       app.kubernetes.io/name: "$name"
   componentKinds:
-    - group: rbac.authorization.k8s.io
-      kind: ClusterRole
-    - group: rbac.authorization.k8s.io
-      kind: ClusterRoleBinding
     - group: batch
       kind: Job

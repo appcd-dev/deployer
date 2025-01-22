@@ -3,11 +3,11 @@ x-google-marketplace:
   partnerId: "my-partner-id"  # Replace with your actual Partner ID
   solutionId: "my-product-id" # Replace with your actual Product ID
   applicationApiVersion: v1beta1
-  publishedVersion: '0.1.0'
+  publishedVersion: '0.1.13'
   publishedVersionMetadata:
     releaseNote: "Initial release with Job support."
   images:
-    terraformRunner:
+    deployer:
       properties:
         terraformRunnerImage:
           type: FULL
@@ -37,13 +37,94 @@ properties:
     type: string
     title: Stackgen Personal Access Token
     description: Access token for Stackgen.
-
-  # Example of a potential additional property (if needed):
-  replicas:
-    type: integer
-    title: Job Replica Count
-    description: Number of job replicas to deploy.
-
+  operatorServiceAccount:
+      type: string
+      title: Operator Service Account
+      x-google-marketplace:
+        type: SERVICE_ACCOUNT
+        serviceAccount:
+          description: >
+            Service account used by Operator deployment to manage cluster resources.
+          roles:
+          - type: ClusterRole
+            rulesType: CUSTOM
+            rules:
+            - apiGroups: [""]
+              resources:
+                - namespaces
+                - secrets
+                - configmaps
+                - services
+                - pods
+                - persistentvolumeclaims
+                - serviceaccounts
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups: ["apps"]
+              resources:
+                - deployments
+                - statefulsets
+                - daemonsets
+                - replicasets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups: ["batch"]
+              resources:
+                - jobs
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups: ["networking.k8s.io"]
+              resources:
+                - networkpolicies
+                - ingresses
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups: ["policy"]
+              resources:
+                - poddisruptionbudgets
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - delete
+                - patch
+                - update
+            - apiGroups: ["autoscaling"]
+              resources:
+                - horizontalpodautoscalers
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
 required:
   - name
   - namespace

@@ -8,7 +8,7 @@ metadata:
 spec:
   template:
     spec:
-      serviceAccountName: terraform-runner
+      serviceAccountName: $operatorServiceAccount
       restartPolicy: Never
       containers:
         - name: terraform-runner
@@ -24,3 +24,11 @@ spec:
               value: $domain
             - name: STACKGEN_PAT
               value: $stackgenPat
+          volumeMounts:
+            - name: deployer-config
+              mountPath: /data/values
+              readOnly: true
+      volumes:
+        - name: deployer-config
+          secret:
+            secretName: $name-deployer-config

@@ -5,11 +5,12 @@ BIN_DIR := $(HOME)/bin
 MPDEV := $(BIN_DIR)/mpdev
 SCHEMA_FILE := marketplace/schema.yaml
 MANIFEST_DIR := marketplace/manifests
+VERSION ?= latest
 
 # Default values for build, install, and verify commands
 REGISTRY ?= gcr.io/platform-439702
 APP_NAME ?= terraform-deployer
-DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_NAME):latest
+DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_NAME)/deployer:$(VERSION)
 WAIT_TIMEOUT ?= 600
 
 # Parameters for mpdev install
@@ -20,10 +21,12 @@ DOMAIN ?= "test.app"
 STACKGEN_PAT ?= "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"
 NAME ?= "my-app-instance"
 NAMESPACE ?= "default"
+OPERATOR_SERVICE_ACCOUNT ?= "stackgen-deployer-sa"
 
 # Construct PARAMETERS JSON for mpdev install
 PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s"}' \
   $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(DOMAIN) $(STACKGEN_PAT))
+
 
 .PHONY: all setup doctor install-deployment verify validate render-manifests apply-manifests help
 
@@ -34,7 +37,15 @@ build:
 	@docker buildx build \
 	  --platform linux/amd64 \
 	  -t $(DEPLOYER_IMAGE) \
+	  --load .
+
+push:
+	@echo "Pushing deployer image: $(DEPLOYER_IMAGE)"
+	@docker buildx build \
+	  --platform linux/amd64 \
+	  -t $(DEPLOYER_IMAGE) \
 	  --push .
+
 
 # Target to set up mpdev binary in ~/bin
 setup:

@@ -1,13 +1,10 @@
 #!/bin/bash
 set -e
 
-echo ">>> Running Terraform with variables from environment"
-
+# Run Terraform
 cd /data/terraform
-# Initialize Terraform
-terraform init
 
-# Apply using environment variable values:
+terraform init
 terraform apply \
   -var "project_id=${PROJECT_ID}" \
   -var "region=${REGION}" \
