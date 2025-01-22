@@ -1,0 +1,15 @@
+x-google-marketplace:
+  schemaVersion: v2
+  partnerId: "my-partner-id"
+  solutionId: "my-product-id"
+  applicationApiVersion: v1beta1
+  publishedVersion: "0.1.13"
+  publishedVersionMetadata:
+    releaseNote: "Test if all pods in the stackgen namespace are running."
+
+properties:
+  testerImage:
+    type: string
+    title: Tester Image
+    description: Docker image for the test Pod
+    default: gcr.io/platform-439702/tester:latest
