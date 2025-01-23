@@ -23,8 +23,8 @@ NAME ?= "my-app-instance"
 NAMESPACE ?= "default"
 
 # Construct PARAMETERS JSON for mpdev install
-PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s"}' \
-  $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(DOMAIN) $(STACKGEN_PAT))
+PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s", "suffix": "%s"}' \
+  $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(DOMAIN) $(STACKGEN_PAT) $(SUFFIX))
 
 .PHONY: all setup doctor install-deployment build push verify validate build-tester push-tester verify-tester render-manifests apply-manifests help clean
 
@@ -45,15 +45,6 @@ push:
 	  -t $(DEPLOYER_IMAGE) \
 	  --push .
 
-# Build and push tester image
-build-tester:
-	@echo "Building tester image: $(TESTER_IMAGE)"
-	cd marketplace/data-test && \
-	docker build -t $(TESTER_IMAGE) .
-
-push-tester:
-	@echo "Pushing tester image: $(TESTER_IMAGE)"
-	docker push $(TESTER_IMAGE)
 
 # Target to set up mpdev binary in ~/bin
 setup:
@@ -82,12 +73,6 @@ verify:
 	@echo "Verifying application with deployer: $(DEPLOYER_IMAGE)"
 	@$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE) --wait_timeout=$(WAIT_TIMEOUT)
 
-# Verify tester functionality
-verify-tester:
-	@echo "Verifying the tester image..."
-	@echo "Using schema: $(TEST_SCHEMA_FILE)"
-	@$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE) \
-	  --schema=$(TEST_SCHEMA_FILE)
 
 # Validate the schema.yaml file
 validate:

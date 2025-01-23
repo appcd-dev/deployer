@@ -26,7 +26,7 @@ COPY marketplace/manifests /data/manifest/
 
 # Copy Terraform configurations
 COPY terraform/ /data/terraform/
-
+COPY marketplace/data-test/ /data-test/
 # Copy deployment script
 COPY scripts/deploy.sh /data/deploy.sh
 RUN chmod +x /data/deploy.sh

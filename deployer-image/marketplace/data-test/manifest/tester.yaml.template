@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod-status-tester
-  namespace: stackgen
   annotations:
     marketplace.cloud.google.com/verification: test
   labels:
@@ -11,7 +10,7 @@ spec:
   serviceAccountName: $operatorServiceAccount
   containers:
     - name: tester
-      image: marketplace.gcr.io/google/debian10:latest
+      image: "${imageTester}"
       command: ["/bin/bash", "-c"]
       args:
         - |

@@ -1,6 +1,6 @@
 appcd:
   image:
-    tag: v2025.1.1
+    tag: v2025.1.3
 appcd-ui:
   image:
     tag: v0.10.11

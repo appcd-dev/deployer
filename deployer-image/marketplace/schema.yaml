@@ -3,7 +3,7 @@ x-google-marketplace:
   partnerId: "my-partner-id"  # Replace with your actual Partner ID
   solutionId: "my-product-id" # Replace with your actual Product ID
   applicationApiVersion: v1beta1
-  publishedVersion: '0.1.19'
+  publishedVersion: '1.0.0'
   publishedVersionMetadata:
     releaseNote: "Initial release with Job support."
   images:
@@ -36,11 +36,16 @@ properties:
     title: Domain
     description: Domain for deployment.
     default: "app.test"
+  suffix:
+    type: string
+    title: suffix
+    description: suffix example name.
+    default: "deployer"
   stackgenPat:
     type: string
     title: Stackgen Personal Access Token
     description: Access token for Stackgen.
-    default: "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"
+    default: "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"
   operatorServiceAccount:
       type: string
       title: Operator Service Account
