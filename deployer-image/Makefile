@@ -18,10 +18,9 @@ PROJECT_ID ?= "platform-439702"
 REGION ?= "us-central1"
 SUFFIX ?= "refined"
 DOMAIN ?= "test.app"
-STACKGEN_PAT ?= "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"
+STACKGEN_PAT ?= "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"
 NAME ?= "my-app-instance"
 NAMESPACE ?= "default"
-OPERATOR_SERVICE_ACCOUNT ?= "stackgen-deployer-sa"
 
 # Construct PARAMETERS JSON for mpdev install
 PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s"}' \
