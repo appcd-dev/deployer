@@ -7,24 +7,26 @@ TEST_SCHEMA_FILE := marketplace/data-test/schema.yaml
 VERSION ?= latest
 
 # Default values for build, install, and verify commands
-REGISTRY = gcr.io/stackgen-gcp-marketplace
+REGISTRY = gcr.io/platform-439702
 APP_NAME ?= terraform-deployer
 DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_NAME)/deployer:$(VERSION)
 TESTER_IMAGE ?= $(REGISTRY)/tester:latest
 WAIT_TIMEOUT ?= 600
 
 # Parameters for mpdev install
-PROJECT_ID ?= "stackgen-public-448714"
+PROJECT_ID ?= "platform-439702"
 REGION ?= "us-central1"
 SUFFIX ?= "refined"
 DOMAIN ?= "test.app"
 STACKGEN_PAT ?= "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"
 NAME ?= "my-app-instance"
 NAMESPACE ?= "default"
+PRE_SHARED_CERT_NAME ?= "marketplace-go-cloud-stackgen-com"
+GLOBAL_STATIC_IP_NAME ?= "proxy-static-ip"
 
-# Construct PARAMETERS JSON for mpdev install
-PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s", "suffix": "%s"}' \
-  $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(DOMAIN) $(STACKGEN_PAT) $(SUFFIX))
+
+PARAMETERS := $(shell printf '{"name": "%s", "namespace": "%s", "projectId": "%s", "region": "%s", "domain": "%s", "stackgenPat": "%s", "suffix": "%s", "preSharedCertName": "%s", "globalStaticIpName": "%s"}' \
+  $(NAME) $(NAMESPACE) $(PROJECT_ID) $(REGION) $(DOMAIN) $(STACKGEN_PAT) $(SUFFIX) $(PRE_SHARED_CERT_NAME) $(GLOBAL_STATIC_IP_NAME))
 
 .PHONY: all setup doctor install-deployment build push verify validate build-tester push-tester verify-tester render-manifests apply-manifests help clean
 

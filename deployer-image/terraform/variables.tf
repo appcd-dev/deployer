@@ -29,3 +29,10 @@ variable "labels" {
   description = "labels to apply to all resources"
   default     = {}
 }
+
+variable "global_static_ip_name" {
+  type        = string  
+}
+variable "pre_shared_cert_name" {
+  type        = string
+}

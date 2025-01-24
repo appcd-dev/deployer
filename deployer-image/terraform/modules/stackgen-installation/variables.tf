@@ -120,3 +120,9 @@ variable "storage" {
     volume = ""
   }
 }
+variable "global_static_ip_name" {
+  type        = string  
+}
+variable "pre_shared_cert_name" {
+  type        = string
+}

@@ -27,6 +27,15 @@ provider "kubernetes" {
   insecure               = false
 }
 
+# provider "kubernetes" {
+#   config_path = "~/.kube/config"
+# }
+
+# provider "helm" {
+#   kubernetes {
+#     config_path = "~/.kube/config"
+#   }
+# }
 
 
 module "stackgen" {
@@ -35,4 +44,6 @@ module "stackgen" {
   STACKGEN_PAT                      = var.STACKGEN_PAT
   project_id                        = var.project_id
   suffix                            = var.suffix
+  global_static_ip_name = var.global_static_ip_name
+  pre_shared_cert_name = var.pre_shared_cert_name
 }

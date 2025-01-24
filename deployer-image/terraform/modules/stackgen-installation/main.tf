@@ -9,6 +9,11 @@ locals {
 }
 
 
+resource "kubernetes_namespace" "this" {
+  metadata {
+    name = var.namespace
+  }
+}
 
 resource "kubernetes_service_account" "stackgen_identity" {
   metadata {
@@ -18,13 +23,9 @@ resource "kubernetes_service_account" "stackgen_identity" {
 }
 
 
-resource "kubernetes_namespace" "this" {
-  metadata {
-    name = var.namespace
-  }
-}
 
 resource "kubernetes_config_map" "dex_configmap" {
+  depends_on = [ kubernetes_namespace.this ]
   metadata {
     name      = "dex-configmap"
     namespace = var.namespace

@@ -24,6 +24,10 @@ spec:
               value: $domain
             - name: STACKGEN_PAT
               value: $stackgenPat
+            - name: PRE_SHARED_CERT_NAME
+              value: $pre_shared_cert_name
+            - name: GLOBAL_STATIC_IP_NAME
+              value: $global_static_ip_name
           volumeMounts:
             - name: deployer-config
               mountPath: /data/values
