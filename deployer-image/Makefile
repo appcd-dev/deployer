@@ -8,7 +8,7 @@ VERSION ?= latest
 
 # Default values for build, install, and verify commands
 REGISTRY = gcr.io/stackgen-gcp-marketplace
-APP_NAME ?= terraform-deployer
+APP_NAME = stackgen-deployer
 DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_NAME)/deployer:$(VERSION)
 TESTER_IMAGE ?= $(REGISTRY)/tester:latest
 WAIT_TIMEOUT ?= 600
