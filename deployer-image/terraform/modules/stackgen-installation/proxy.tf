@@ -17,9 +17,9 @@ resource "kubernetes_config_map" "proxy_config" {
 }
 
 resource "kubernetes_deployment" "nginx_server" {
-  depends_on = [ helm_release.stackgen ]
+  depends_on = [helm_release.stackgen]
   metadata {
-    name = "proxy"
+    name      = "proxy"
     namespace = var.namespace
   }
 
@@ -53,6 +53,24 @@ resource "kubernetes_deployment" "nginx_server" {
             mount_path = "/etc/nginx/conf.d/default.conf"
             sub_path   = "nginx.conf"
           }
+
+          readiness_probe {
+            http_get {
+              path = "/healthz"
+              port = 80
+            }
+            initial_delay_seconds = 5
+            period_seconds         = 10
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/healthz"
+              port = 80
+            }
+            initial_delay_seconds = 10
+            period_seconds         = 15
+          }
         }
 
         volume {
@@ -66,6 +84,7 @@ resource "kubernetes_deployment" "nginx_server" {
     }
   }
 }
+
 
 # Kubernetes Service
 resource "kubernetes_service" "nginx_service" {

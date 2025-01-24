@@ -14,6 +14,10 @@ server {
     add_header Referrer-Policy "strict-origin";
     add_header Permissions-Policy "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()";
     client_max_body_size 10m;
+    location = /healthz {
+        default_type text/plain;
+        return 200 'OK';
+    }
 
     location = /favicon.ico {
         return 301 https://appcd.com/favicon.ico;
