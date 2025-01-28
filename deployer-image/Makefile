@@ -7,14 +7,14 @@ TEST_SCHEMA_FILE := marketplace/data-test/schema.yaml
 VERSION ?= latest
 
 # Default values for build, install, and verify commands
-REGISTRY = gcr.io/stackgen-gcp-marketplace
-APP_NAME = stackgen-deployer
+REGISTRY = gcr.io/platform-439702
+APP_NAME = terraform-deployer
 DEPLOYER_IMAGE ?= $(REGISTRY)/$(APP_NAME)/deployer:$(VERSION)
 TESTER_IMAGE ?= $(REGISTRY)/tester:latest
 WAIT_TIMEOUT ?= 600
 
 # Parameters for mpdev install
-PROJECT_ID ?= "stackgen-gcp-marketplace"
+PROJECT_ID ?= "platform-439702"
 REGION ?= "us-central1"
 SUFFIX ?= "refined"
 DOMAIN ?= "test.app"
