@@ -1,0 +1,19 @@
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: "$name"
+  namespace: "$namespace"
+  annotations:
+    marketplace.cloud.google.com/deploy-info: '{"partner_id": "my-partner-id", "product_id": "my-product-id"}'
+  labels:
+    app.kubernetes.io/name: "$name"
+spec:
+  descriptor:
+    type: terraform-runner
+    version: "1.0.5"
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "$name"
+  componentKinds:
+    - group: batch
+      kind: Job

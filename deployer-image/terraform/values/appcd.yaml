@@ -1,0 +1,74 @@
+domain: &domain ${domain}
+exporter:
+  enabled: true
+  helm_ingress_a0d9d3b950a15ef6aeb5d528f0ed1481:
+    rules:
+      - host: *domain
+        http:
+          paths:
+          - path: /exporter
+            pathType: Prefix
+llm-gateway:
+  enabled: ${enable_feature.llm}
+  helm_ingress_234714ab33c6554ab8653a4063d20bae:
+    rules:
+      - host: *domain
+        http:
+          paths:
+          - path: /ai/public
+            pathType: Prefix
+appcd:
+  domain: *domain
+  serviceAccount:
+    name: ${appcd_service_account}
+  podAnnotations:
+    gke-gcsfuse/volumes: "true"
+  auth:
+    enabled: ${auth_enabled}
+%{ if length(appcd_admin_emails) != 0 ~}
+  rbac:
+    admin_emails:
+%{ for email in appcd_admin_emails ~}
+      - ${email}
+%{ endfor ~}
+%{ endif ~}
+  scm:
+    github:
+      auth_url: ${scm_github_auth_url}
+      token_url: ${scm_github_token_url}
+    gitlab:
+      auth_url: ${scm_gitlab_auth_url}
+      token_url: ${scm_gitlab_token_url}
+    azure:
+      auth_url: ${scm_azure_auth_url}
+      token_url: ${scm_azure_token_url}
+  autoscaling:
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 90
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "3Gi"
+      cpu: "2"
+  serviceMonitor:
+    enabled: ${enable_ops}
+  storage:
+    worm:
+      enabled: ${enable_storage}
+  temporal:
+    hostport: "temporal-frontend:7233"
+    namespace: ${temporal_namespace}
+  secrets:
+%{ for secret in appcd_secrets ~}
+    - ${secret}
+%{ endfor ~}
+appcd-ui:
+  domain: *domain
+iac-gen:
+  domain: *domain
+  secrets:
+%{ for secret in appcd_secrets ~}
+    - ${secret}
+%{ endfor ~}

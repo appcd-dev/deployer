@@ -1,0 +1,18 @@
+global:
+  postgresql:
+    auth:
+      username: ${username}
+      password: ${password}
+      database: ${database}
+primary:
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: standard
+volumePermissions:
+  enabled: true
+  containerSecurityContext:
+    runAsUser: 0
+    runAsGroup: 0
+tls:
+  enabled: false

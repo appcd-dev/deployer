@@ -1,0 +1,4 @@
+properties:
+  imageTester:
+    type: string
+    default: marketplace.gcr.io/google/debian10:latest

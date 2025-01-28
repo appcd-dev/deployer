@@ -1,0 +1,282 @@
+/* # CSS overloaded */
+
+.dex-btn {
+  box-shadow: none !important;
+}
+.dex-btn-text {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  line-height: unset;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 24px;
+  padding: 0;
+}
+
+.dex-btn-icon {
+  margin: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: unset;
+  background-size: contain;
+}
+
+span.dex-btn-icon--gitlab {
+  background-image: url(https://cdn-icons-png.flaticon.com/512/5968/5968853.png);
+}
+
+span.dex-btn-icon--google {
+  background-image: url(https://cdn-icons-png.flaticon.com/512/281/281764.png);
+  margin-top: 2px;
+}
+
+span.dex-btn-icon--github {
+  background-image: url(https://cdn-icons-png.flaticon.com/512/733/733609.png);
+  filter: brightness(0) invert(1);
+}
+
+button.dex-btn:has(> span.dex-btn-icon--github) {
+  background-color: #2F3946;
+}
+
+span.dex-btn-icon--bitbucket-cloud {
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cg%20clip-path%3D%22url(%23clip0_4948_35385)%22%3E%3Cpath%20d%3D%22M19.1668%206.66663H13.254L12.2685%2012.8468H8.16233L3.3335%2018.9571C3.3335%2018.9571%203.56343%2019.1666%203.89193%2019.1666H16.7689C17.0646%2019.1666%2017.3273%2018.9222%2017.393%2018.608L19.1668%206.66663Z%22%20fill%3D%22url(%23paint0_linear_4948_35385)%22/%3E%3Cpath%20d%3D%22M0.642011%200.833374C0.242377%200.833374-0.0573071%201.20683%200.009293%201.58029L2.70678%2018.4198C2.74008%2018.6235%202.84%2018.8272%203.00651%2018.963C3.00651%2018.963%203.23961%2019.1667%203.57264%2019.1667L8.63459%2012.9877H7.93526L6.83626%206.97847H13.1304H19.1249L19.9907%201.58029C20.0574%201.17288%2019.7576%200.833374%2019.3579%200.833374H0.642011Z%22%20fill%3D%22white%22/%3E%3C/g%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22paint0_linear_4948_35385%22%20x1%3D%2219.9467%22%20y1%3D%229.42243%22%20x2%3D%2210.3272%22%20y2%3D%2215.5483%22%20gradientUnits%3D%22userSpaceOnUse%22%3E%3Cstop%20offset%3D%220.0718327%22%20stop-color%3D%22white%22%20stop-opacity%3D%220.4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22white%22/%3E%3C/linearGradient%3E%3CclipPath%20id%3D%22clip0_4948_35385%22%3E%3Crect%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22white%22/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E');
+}
+
+button.dex-btn:has(> span.dex-btn-icon--gitlab) {
+  background-color: rgb(97, 63, 181);
+}
+
+button.dex-btn:has(> span.dex-btn-icon--google) {
+  background-color: rgb(255, 255, 255);
+}
+
+button.dex-btn:has(> span.dex-btn-icon--bitbucket-cloud) {
+  background-color: rgb(0, 82, 204);
+}
+
+button.dex-btn:has(> span.dex-btn-icon--google) .dex-btn-text {
+  color: #000000;
+}
+
+.theme-body {
+  --tw-bg-opacity: 1;
+  background-color: rgb(10 12 15 / var(--tw-bg-opacity));
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  font-family:
+    Inter,
+    Roboto,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Helvetica Neue,
+    Arial,
+    Noto Sans,
+    sans-serif,
+    Apple Color Emoji,
+    Segoe UI Emoji,
+    Segoe UI Symbol,
+    Noto Color Emoji;
+  
+}
+.theme-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.theme-navbar {
+  --tw-bg-opacity: 1;
+  background-color: rgb(10 12 15 / var(--tw-bg-opacity));
+  font-size: 13px;
+  font-weight: 100;
+  height: 46px;
+  overflow: hidden;
+  padding: 0 10px;
+  align-self: flex-start;
+}
+
+.theme-navbar__logo {
+  height: 2rem;
+}
+
+.theme-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-heading {
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  --tw-text-opacity: 1;
+  color: rgb(171 185 204 / var(--tw-text-opacity));
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.theme-btn-provider {
+  background-color: #1e242d;
+  color: #c8d1d9;
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  min-width: 19.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.theme-btn-provider:hover {
+  background-color: #212731;
+  color: #ffffff;
+}
+
+.theme-btn--primary {
+  background-color: #1e242d;
+  border: none;
+  color: #c8d1d9;
+  min-width: 200px;
+}
+
+.theme-btn--primary:hover {
+  background-color: #212731;
+  color: #e9e9e9;
+}
+
+.theme-btn--success {
+  background-color: #1891bb;
+  color: #e9e9e9;
+  width: 250px;
+}
+
+.theme-btn--success:hover {
+  background-color: #1da5d4;
+}
+
+.theme-form-row {
+  display: block;
+  margin: 0.75rem auto;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.theme-form-input {
+  display: block;
+  height: 36px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border: 1px solid #515559;
+  border-radius: 4px;
+  color: #c8d1d9;
+  background-color: #0f1218;
+  box-shadow: inset 0 1px 1px rgb(27, 40, 46);
+  width: 250px;
+  margin: auto;
+}
+
+.theme-form-input:focus,
+.theme-form-input:active {
+  outline: none;
+  border-color: #f8f9f9;
+  color: #c8d1d9;
+}
+
+.theme-form-label {
+  width: 250px;
+  margin: 4px auto;
+  text-align: left;
+  position: relative;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c8d1d9;
+}
+
+.theme-link-back {
+  margin-top: 4px;
+}
+
+.dex-container {
+  color: #c8d1d9;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0px auto;
+  padding-bottom: 1rem;
+}
+
+.theme-divider {
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  display: inline-flex;
+  margin-block: 24px;
+}
+
+.theme-divider-part{
+  flex: 1 1 0;
+  border: 1px solid #374252;
+}
+
+.theme-divider-text{
+  font-size: 12px;
+  color: #8390A3;
+  line-height: 18px;
+}
+
+
+#tos_container {
+  font-size: 0.875rem;
+  .tos_statement {
+    --tw-text-opacity: 1;
+    color: rgb(131 144 163 / var(--tw-text-opacity));
+    .tos_links {
+      text-decoration-line: underline;
+      --itw-text-opacty: 1;
+      color: rgb(63 169 245 / var(--tw-text-opacity));
+    }
+  }
+}
+
+.announcement-banner {
+  background: linear-gradient(90deg, #99ff55 0%, #3ea8fa 100%);
+  padding: 10px 12px;
+  color: black;
+  width: 100%;
+  z-index: 1000;
+  font-size: 14px;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.announcement-banner a {
+  text-decoration: none;
+  color: #085c99;
+  display: flex;
+  gap: 2px;
+}
+.announcement-banner .close {
+  display: flex;
+}
+.announcement-banner button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}

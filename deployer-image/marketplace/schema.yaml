@@ -1,0 +1,137 @@
+x-google-marketplace:
+  schemaVersion: v2
+  partnerId: "my-partner-id"  # Replace with your actual Partner ID
+  solutionId: "my-product-id" # Replace with your actual Product ID
+  applicationApiVersion: v1beta1
+  publishedVersion: "1.0.5"
+  publishedVersionMetadata:
+    releaseNote: "Initial release with Job support."
+  images:
+    deployer:
+      properties:
+        terraformRunnerImage:
+          type: FULL
+
+properties:
+  name:
+    type: string
+    x-google-marketplace:
+      type: NAME
+  namespace:
+    type: string
+    x-google-marketplace:
+      type: NAMESPACE
+  domain:
+    type: string
+    title: Domain
+    description: Domain for deployment.
+  suffix:
+    type: string
+    title: suffix
+    description: suffix example name.
+    default: "deployer"
+  stackgenPat:
+    type: string
+    title: Stackgen Personal Access Token
+    description: Access token for Stackgen.
+  pre_shared_cert_name:
+    type: string
+    title: Pre-shared Certificate Name
+    description: The name of the pre-shared SSL certificate created in your GCP account. This certificate is used for HTTPS connections in the GCE Ingress configuration.
+  global_static_ip_name:
+    type: string
+    title: Global Static IP Name
+    description: The name of the global static IP reserved in your GCP account. This IP is used for associating with GCE Ingress.
+  operatorServiceAccount:
+      type: string
+      title: Operator Service Account
+      x-google-marketplace:
+        type: SERVICE_ACCOUNT
+        serviceAccount:
+          description: >
+            Service account used by Operator deployment to manage cluster resources.
+          roles:
+          - type: ClusterRole
+            rulesType: CUSTOM
+            rules:
+            - apiGroups: [""]
+              resources:
+                - namespaces
+                - secrets
+                - configmaps
+                - services
+                - pods
+                - persistentvolumeclaims
+                - serviceaccounts
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups: ["apps"]
+              resources:
+                - deployments
+                - statefulsets
+                - daemonsets
+                - replicasets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups: ["batch"]
+              resources:
+                - jobs
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups: ["networking.k8s.io"]
+              resources:
+                - networkpolicies
+                - ingresses
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups: ["policy"]
+              resources:
+                - poddisruptionbudgets
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - delete
+                - patch
+                - update
+            - apiGroups: ["autoscaling"]
+              resources:
+                - horizontalpodautoscalers
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+required:
+  - name
+  - namespace
+  - domain
+  - stackgenPat
