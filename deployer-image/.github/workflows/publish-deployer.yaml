@@ -1,30 +1,33 @@
-name: Build and Push on Tag
+name: Build and Push to GCR
 
 on:
   push:
-    tags:
-      - "*"  # Runs on any tag push
+    branches: [ "main" ]
+  # You can also trigger on tags, pull requests, etc.
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
+      # 1. Check out the repository
+      - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Docker Login to GCR
+      # 2. Log in to Google Container Registry
+      - name: Log in to GCR
         uses: docker/login-action@v2
         with:
           registry: gcr.io
           username: _json_key
           password: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Extract Tag
-        id: extract_tag
-        run: echo "TAG_NAME=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+      # 3. Build the image
+      - name: Build Deployer
+        run: |
+          # Optionally pass a VERSION if you like, e.g.:
+          make build VERSION="latest"
 
-      - name: Build
-        run: make build VERSION=${{ steps.extract_tag.outputs.TAG_NAME }}
-
-      - name: Push
-        run: make push VERSION=${{ steps.extract_tag.outputs.TAG_NAME }}
+      # 4. Push the image
+      - name: Push Deployer
+        run: |
+          make push VERSION="latest"
