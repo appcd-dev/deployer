@@ -56,7 +56,7 @@ jobs:
           # Create an OCI index with a single image and attach the required annotation
           docker buildx imagetools create \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            --annotation com.googleapis.cloudmarketplace.product.service.name="services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog" \
+            --annotation index:com.googleapis.cloudmarketplace.product.service.name="services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog" \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-temp
 
       - name: Remove Temporary Image
