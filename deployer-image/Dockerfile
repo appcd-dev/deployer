@@ -1,10 +1,10 @@
 FROM alpine AS test_schema_creator
-ARG GH_TOKEN
-RUN echo "GH_TOKEN is: $GH_TOKEN" && test -n "$GH_TOKEN" || echo "❌ GH_TOKEN is empty!"
 
 WORKDIR /app
 
-COPY marketplace/schema.yaml .
+ARG GH_TOKEN
+
+COPY marketplace/data-test/schema.yaml .
 
 RUN apk add --no-cache yq && \
     echo "$GH_TOKEN" | tr -d '\n' > /tmp/gh_token && \
@@ -16,8 +16,8 @@ FROM marketplace.gcr.io/google/debian10 AS build
 # Install tools for envsubst
 RUN apt-get update && apt-get install -y --no-install-recommends gettext && rm -rf /var/lib/apt/lists/*
 
-COPY --from=test_schema_creator /app/schema.yaml /workspace/schema.yaml
 # Copy schema.yaml and preprocess it with envsubst
+COPY marketplace/schema.yaml /workspace/schema.yaml
 RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
     mv /workspace/schema.yaml.processed /workspace/schema.yaml
 
@@ -40,8 +40,8 @@ COPY --from=build /workspace/schema.yaml /data/schema.yaml
 # Copy Kubernetes manifests
 COPY marketplace/manifests /data/manifest/
 
-COPY marketplace/data-test /data-test
-
+COPY marketplace/data-test/manifest/ /data-test/manifest/
+COPY --from=test_schema_creator /app/schema.yaml /data-test/schema.yaml
 COPY scripts/deploy.sh /data/deploy.sh
 RUN chmod +x /data/deploy.sh
 
