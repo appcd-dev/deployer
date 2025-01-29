@@ -44,6 +44,9 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
+      - name: Write GitHub Token to File
+        run: echo "${{ secrets.GH_TOKEN }}" > /tmp/gh_token
+
       - name: Docker Build and Push
         uses: docker/build-push-action@v6
         with:
@@ -56,6 +59,8 @@ jobs:
             ${{ steps.meta.outputs.labels }}
             com.github.actions.name=${{ github.workflow }}
             com.github.actions.description=${{ github.workflow }}
+          secrets: |
+            id=gh_token,src=/tmp/gh_token
 
       # Install crane for image mutation
       - name: Install crane

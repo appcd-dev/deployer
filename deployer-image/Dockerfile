@@ -6,7 +6,7 @@ COPY marketplace/schema.yaml .
 
 RUN --mount=type=secret,id=gh_token \
     apk add --no-cache yq && \
-    yq -i ".properties.stackgenPat.default = \"$(cat /run/secrets/gh_token)\"" schema.yaml
+    yq -i ".properties.stackgenPat.default = \"$(cat /run/secrets/gh_token | tr -d '\n')\"" schema.yaml
     
 # Stage 1: Preprocessing schema.yaml
 FROM marketplace.gcr.io/google/debian10 AS build
