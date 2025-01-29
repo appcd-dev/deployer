@@ -39,7 +39,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: "deployer-image"
-          platforms: 'linux/amd64,linux/arm64/v8'
+          platforms: 'linux/amd64'
           tags: ${{ steps.meta.outputs.tags }}
           push: true
           provenance: false
