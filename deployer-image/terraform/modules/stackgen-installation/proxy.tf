@@ -7,7 +7,7 @@ resource "kubernetes_config_map" "proxy_config" {
 
   data = {
     "nginx.conf" = join("\n", compact([
-      templatefile("./values/proxy-base.conf.tpl", { 
+      templatefile("./values/proxy-base.conf.tpl", {
         domain    = var.domain,
         namespace = var.namespace
       }),
@@ -60,7 +60,7 @@ resource "kubernetes_deployment" "nginx_server" {
               port = 80
             }
             initial_delay_seconds = 5
-            period_seconds         = 10
+            period_seconds        = 10
           }
 
           liveness_probe {
@@ -69,7 +69,7 @@ resource "kubernetes_deployment" "nginx_server" {
               port = 80
             }
             initial_delay_seconds = 10
-            period_seconds         = 15
+            period_seconds        = 15
           }
         }
 
@@ -88,9 +88,9 @@ resource "kubernetes_deployment" "nginx_server" {
 
 # Kubernetes Service
 resource "kubernetes_service" "nginx_service" {
-  depends_on = [ kubernetes_deployment.nginx_server ]
+  depends_on = [kubernetes_deployment.nginx_server]
   metadata {
-    name = "proxy"
+    name      = "proxy"
     namespace = var.namespace
   }
 
@@ -116,7 +116,7 @@ resource "kubernetes_ingress_v1" "nginx_server_ingress" {
     namespace = var.namespace
 
     annotations = {
-      "kubernetes.io/ingress.class"                = "gce"
+      "kubernetes.io/ingress.class"                 = "gce"
       "kubernetes.io/ingress.global-static-ip-name" = var.global_static_ip_name
       "ingress.gcp.kubernetes.io/pre-shared-cert"   = var.pre_shared_cert_name
     }
@@ -128,7 +128,7 @@ resource "kubernetes_ingress_v1" "nginx_server_ingress" {
 
       http {
         path {
-          path     = "/"
+          path      = "/"
           path_type = "Prefix"
 
           backend {

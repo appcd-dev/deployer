@@ -25,7 +25,7 @@ resource "kubernetes_service_account" "stackgen_identity" {
 
 
 resource "kubernetes_config_map" "dex_configmap" {
-  depends_on = [ kubernetes_namespace.this ]
+  depends_on = [kubernetes_namespace.this]
   metadata {
     name      = "dex-configmap"
     namespace = var.namespace
@@ -221,7 +221,7 @@ locals {
     enable_feature : var.enable_feature
     appcd_admin_emails : var.admin_emails
     enable_storage : length(var.storage.volume) > 0
-    appcd_service_account: local.appcd_service_account
+    appcd_service_account : local.appcd_service_account
   })
 }
 

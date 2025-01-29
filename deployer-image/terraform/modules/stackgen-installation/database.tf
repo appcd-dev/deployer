@@ -62,10 +62,13 @@ locals {
 ##############################################################################
 
 resource "helm_release" "postgresql" {
-  name       = "my-postgresql"
-  namespace  = "stackgen"
-  chart      = "postgresql-16.4.3.tgz" # Path to your local chart file
+  name = "postgres"
 
+  repository = "oci://registry-1.docker.io/"
+  chart      = "bitnamicharts/postgresql"
+  version    = "16.4.5"
+
+  namespace = var.namespace
   values = [
     yamlencode(local.postgresql_values) # Convert the object to a YAML string
   ]

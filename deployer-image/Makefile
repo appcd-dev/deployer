@@ -58,6 +58,11 @@ verify: build
 	@echo "Verifying application with deployer: $(DEPLOYER_IMAGE_RELEASE)"
 	$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE_RELEASE)
 
+tofu: tofu/fmt
+
+tofu/fmt:
+	tofu fmt --recursive .
+
 validate:
 	@echo "Validating schema file: $(SCHEMA_FILE)"
 	$(MPDEV) validate --schema=$(SCHEMA_FILE)
