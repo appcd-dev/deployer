@@ -1,3 +1,15 @@
+FROM alpine AS test_schema_creator
+
+WORKDIR /app
+
+ARG GH_TOKEN
+
+COPY marketplace/data-test/schema.yaml .
+
+RUN apk add --no-cache yq && \
+    echo "$GH_TOKEN" | tr -d '\n' > /tmp/gh_token && \
+    yq -i ".properties.stackgenPat.default = \"$GH_TOKEN\"" schema.yaml
+    
 # Stage 1: Preprocessing schema.yaml
 FROM marketplace.gcr.io/google/debian10 AS build
 
@@ -20,7 +32,7 @@ RUN apt-get update && apt-get install -y wget unzip git \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
     && apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
 
-# LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
+LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
 # Copy processed schema.yaml
 COPY --from=build /workspace/schema.yaml /data/schema.yaml
@@ -28,12 +40,13 @@ COPY --from=build /workspace/schema.yaml /data/schema.yaml
 # Copy Kubernetes manifests
 COPY marketplace/manifests /data/manifest/
 
-# Copy Terraform configurations
-COPY terraform/ /data/terraform/
-COPY marketplace/data-test/ /data-test/
-# Copy deployment script
+COPY marketplace/data-test/manifest/ /data-test/manifest/
+COPY --from=test_schema_creator /app/schema.yaml /data-test/schema.yaml
 COPY scripts/deploy.sh /data/deploy.sh
 RUN chmod +x /data/deploy.sh
+
+# Copy Terraform configurations
+COPY terraform/ /data/terraform/
 
 # Define entrypoint
 ENTRYPOINT ["/data/deploy.sh"]

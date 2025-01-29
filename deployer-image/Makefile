@@ -6,8 +6,8 @@ MANIFEST_DIR := marketplace/manifests
 
 # Semantic minor version (TRACK) and full release version
 # TODO(sabith) read from tag
-TRACK ?= 1.0
-RELEASE ?= ${TRACK}.1
+TRACK ?= 1.1
+RELEASE ?= ${TRACK}.0
 
 # Docker registry and image names
 REGISTRY = gcr.io/stackgen-gcp-marketplace
@@ -20,16 +20,21 @@ DEPLOYER_IMAGE_TRACK := $(REGISTRY)/$(APP_NAME)/deployer:$(TRACK)
 all: help
 
 build:
+	@gh_token=$(shell gh auth token) \
 	docker buildx build \
 	  --platform linux/amd64 \
 	  --platform linux/arm64 \
+	  --secret id=gh_token \
 	  --annotation "com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog" \
 	  -t $(DEPLOYER_IMAGE_RELEASE) \
+	  -t $(DEPLOYER_IMAGE_TRACK) \
 	  .
 # Build, tag, and push the image in a single command
 push: build
-	docker pushb $(DEPLOYER_IMAGE_RELEASE)
-	@echo "Tagging and pushing deployer image for TRACK: $(DEPLOYER_IMAGE_TRACK)"
+	docker push \
+	  $(DEPLOYER_IMAGE_RELEASE)
+	docker push \
+	  $(DEPLOYER_IMAGE_TRACK)
 
 setup:
 	@echo "Setting up mpdev..."
@@ -51,9 +56,10 @@ verify: build
 	@echo "Verifying application with deployer: $(DEPLOYER_IMAGE_RELEASE)"
 	$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE_RELEASE)
 
-validate:
-	@echo "Validating schema file: $(SCHEMA_FILE)"
-	$(MPDEV) validate --schema=$(SCHEMA_FILE)
+tofu: tofu/fmt
+
+tofu/fmt:
+	tofu fmt --recursive .
 
 clean:
 	@echo "Cleaning up Docker images..."

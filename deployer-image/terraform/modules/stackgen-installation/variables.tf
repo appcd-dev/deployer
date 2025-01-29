@@ -116,8 +116,8 @@ variable "storage" {
   }
 }
 variable "global_static_ip_name" {
-  type        = string  
+  type = string
 }
 variable "pre_shared_cert_name" {
-  type        = string
+  type = string
 }
