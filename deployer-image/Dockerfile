@@ -1,12 +1,19 @@
 FROM alpine AS test_schema_creator
+ARG GH_TOKEN
+RUN echo "GH_TOKEN is: $GH_TOKEN" && test -n "$GH_TOKEN" || echo "❌ GH_TOKEN is empty!"
 
 WORKDIR /app
 
 COPY marketplace/schema.yaml .
 
-RUN --mount=type=secret,id=gh_token \
-    apk add --no-cache yq && \
-    yq -i ".properties.stackgenPat.default = \"$(cat /run/secrets/gh_token | tr -d '\n')\"" schema.yaml
+
+RUN apk add --no-cache yq && \
+    echo "$GH_TOKEN" | tr -d '\n' > /tmp/gh_token && \
+    yq -i ".properties.stackgenPat.default = \"$GH_TOKEN\"" schema.yaml
+
+# RUN --mount=type=secret,id=gh_token \
+#     apk add --no-cache yq && \
+#     yq -i ".properties.stackgenPat.default = \"$(cat /run/secrets/gh_token | tr -d '\n')\"" schema.yaml
     
 # Stage 1: Preprocessing schema.yaml
 FROM marketplace.gcr.io/google/debian10 AS build

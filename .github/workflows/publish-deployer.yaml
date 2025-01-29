@@ -43,9 +43,16 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Write GitHub Token to File
-        run: echo "${{ secrets.GH_TOKEN }}" > /tmp/gh_token
+      - name: Verify GH_TOKEN
+        run: |
+          if [[ -z "${{ secrets.GH_TOKEN }}" ]]; then
+            echo "❌ ERROR: GH_TOKEN is empty or not set!"
+            exit 1
+          else
+            echo "✅ GH_TOKEN is set!"
+          fi
 
       - name: Docker Build and Push
         uses: docker/build-push-action@v6
@@ -59,8 +66,7 @@ jobs:
             ${{ steps.meta.outputs.labels }}
             com.github.actions.name=${{ github.workflow }}
             com.github.actions.description=${{ github.workflow }}
-          secrets: |
-            id=gh_token,src=/tmp/gh_token
+          build-args: GH_TOKEN=${{ secrets.GH_TOKEN }}
 
       # Install crane for image mutation
       - name: Install crane
