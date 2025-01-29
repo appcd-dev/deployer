@@ -22,6 +22,8 @@ provider "kubernetes" {
   insecure = false
 }
 
+
+
 module "stackgen" {
   source                = "./modules/stackgen-installation"
   domain                = var.domain

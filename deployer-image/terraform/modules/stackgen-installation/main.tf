@@ -2,7 +2,7 @@
 locals {
   temporal_helm_version             = "0.33.0"
   postgresql_administrator_password = random_password.db_password.result
-  postgresql_fqdn                   = "${helm_release.postgresql.name}.${helm_release.postgresql.namespace}.svc.cluster.local"
+  postgresql_fqdn                   = "postgres-postgresql.${helm_release.postgresql.namespace}.svc.cluster.local"
   postgresql_administrator_login    = "stackgen"
   release_name                      = "appcd"
   appcd_service_account             = "stackgen-ns-${var.suffix}"
