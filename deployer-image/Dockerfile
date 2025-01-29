@@ -1,3 +1,13 @@
+FROM alpine AS test_schema_creator
+
+WORKDIR /app
+
+COPY marketplace/data-test/schema.yaml .
+
+RUN --mount=type=secret,id=gh_token \
+    apk add --no-cache yq && \
+    yq -i ".properties.stackgenPat.default = \"$(cat /run/secrets/gh_token)\"" schema.yaml
+    
 # Stage 1: Preprocessing schema.yaml
 FROM marketplace.gcr.io/google/debian10 AS build
 
@@ -28,12 +38,13 @@ COPY --from=build /workspace/schema.yaml /data/schema.yaml
 # Copy Kubernetes manifests
 COPY marketplace/manifests /data/manifest/
 
-# Copy Terraform configurations
-COPY terraform/ /data/terraform/
-COPY marketplace/data-test/ /data-test/
-# Copy deployment script
+COPY marketplace/data-test/manifest/ /data-test/manifest/
+COPY --from=test_schema_creator /app/schema.yaml /data-test/schema.yaml
 COPY scripts/deploy.sh /data/deploy.sh
 RUN chmod +x /data/deploy.sh
+
+# Copy Terraform configurations
+COPY terraform/ /data/terraform/
 
 # Define entrypoint
 ENTRYPOINT ["/data/deploy.sh"]

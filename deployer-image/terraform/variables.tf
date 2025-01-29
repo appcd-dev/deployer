@@ -1,6 +1,7 @@
 variable "suffix" {
   type        = string
   description = "Suffix to all names"
+  default = "marketplace"
 }
 
 variable "domain" {

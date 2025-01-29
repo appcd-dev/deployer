@@ -15,7 +15,7 @@ spec:
           image: $terraformRunnerImage
           env:
             - name: SUFFIX
-              value: $SUFFIX
+              value: $suffix
             - name: DOMAIN
               value: $domain
             - name: STACKGEN_PAT

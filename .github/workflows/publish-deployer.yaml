@@ -44,6 +44,8 @@ jobs:
           push: true
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
+          secrets: |
+            gh_token=${{ secrets.STACKGEN_IMAGE_PULL_SECRET }}
           annotations: |
             com.github.actions.name=${{ github.workflow }}
             com.github.actions.description=${{ github.workflow }}
