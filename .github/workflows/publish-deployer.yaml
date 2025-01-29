@@ -43,7 +43,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           push: true
           provenance: false
-          labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             gh_token=${{ secrets.STACKGEN_IMAGE_PULL_SECRET }}
           labels: |
