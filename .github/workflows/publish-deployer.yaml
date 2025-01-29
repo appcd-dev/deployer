@@ -39,13 +39,13 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: "deployer-image"
-          platforms: 'linux/amd64,linux/arm64'
+          platforms: 'linux/amd64'
           tags: ${{ steps.meta.outputs.tags }}
           push: true
           provenance: false
-          labels: ${{ steps.meta.outputs.labels }}
-          annotations: |
+          labels: |
+            ${{ steps.meta.outputs.labels }}
             com.github.actions.name=${{ github.workflow }}
             com.github.actions.description=${{ github.workflow }}
             index:com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
-            ${{ steps.meta.outputs.annotations }}
+

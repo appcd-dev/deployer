@@ -20,7 +20,7 @@ RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
     mv /workspace/schema.yaml.processed /workspace/schema.yaml
 
 # Stage 2: Deployer
-FROM ubuntu:22.04
+FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
 ARG TERRAFORM_VERSION=1.5.3
 
