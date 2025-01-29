@@ -10,7 +10,7 @@ metadata:
 spec:
   descriptor:
     type: terraform-runner
-    version: "1.1.0"
+    version: "1.2.0"
   selector:
     matchLabels:
       app.kubernetes.io/name: "$name"

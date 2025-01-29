@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y wget unzip git \
     && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
     && apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
 
-# LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
+LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
 # Copy processed schema.yaml
 COPY --from=build /workspace/schema.yaml /data/schema.yaml

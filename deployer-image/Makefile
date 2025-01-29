@@ -31,8 +31,6 @@ build:
 	  .
 # Build, tag, and push the image in a single command
 push: build
-	# push both architectures
-
 	docker push \
 	  $(DEPLOYER_IMAGE_RELEASE)
 	docker push \
@@ -62,10 +60,6 @@ tofu: tofu/fmt
 
 tofu/fmt:
 	tofu fmt --recursive .
-
-validate:
-	@echo "Validating schema file: $(SCHEMA_FILE)"
-	$(MPDEV) validate --schema=$(SCHEMA_FILE)
 
 clean:
 	@echo "Cleaning up Docker images..."

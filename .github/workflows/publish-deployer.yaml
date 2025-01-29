@@ -50,4 +50,5 @@ jobs:
             com.github.actions.name=${{ github.workflow }}
             com.github.actions.description=${{ github.workflow }}
             index:com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
+            com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
             ${{ steps.meta.outputs.annotations }}
