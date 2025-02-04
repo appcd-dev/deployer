@@ -29,6 +29,7 @@ properties:
     type: string
     title: suffix
     description: suffix example name.
+    default: marketplace
   stackgenPat:
     type: string
     title: Stackgen Personal Access Token
