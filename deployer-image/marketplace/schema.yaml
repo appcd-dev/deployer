@@ -25,12 +25,10 @@ properties:
     type: string
     title: Domain
     description: Domain for deployment.
-    default: app.test
   suffix:
     type: string
     title: suffix
     description: suffix example name.
-    default: "marketplace"
   stackgenPat:
     type: string
     title: Stackgen Personal Access Token
@@ -39,12 +37,10 @@ properties:
     type: string
     title: Pre-shared Certificate Name
     description: The name of the pre-shared SSL certificate created in your GCP account. This certificate is used for HTTPS connections in the GCE Ingress configuration.
-    default: marketplace-go-cloud-stackgen-com
   global_static_ip_name:
     type: string
     title: Global Static IP Name
     description: The name of the global static IP reserved in your GCP account. This IP is used for associating with GCE Ingress.
-    default: test
   operatorServiceAccount:
       type: string
       title: Operator Service Account
