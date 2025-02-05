@@ -6,7 +6,7 @@ MANIFEST_DIR := marketplace/manifests
 
 # Semantic minor version (TRACK) and full release version
 # TODO(sabith) read from tag
-TRACK = 1.0
+TRACK ?= 1.1
 RELEASE ?= ${TRACK}.0
 
 # Docker registry and image names
@@ -14,7 +14,6 @@ REGISTRY = gcr.io/stackgen-gcp-marketplace
 APP_NAME = stackgen-deployer
 DEPLOYER_IMAGE_RELEASE := $(REGISTRY)/$(APP_NAME)/deployer:$(RELEASE)
 DEPLOYER_IMAGE_TRACK := $(REGISTRY)/$(APP_NAME)/deployer:$(TRACK)
-NEW_IMAGE := gcr.io/cloud-marketplace/stackgen-gcp-marketplace/stackgen-enterprise-platform-k8s-v2/deployer:1.0.0
 
 .PHONY: all push setup doctor install verify validate clean help
 
@@ -49,11 +48,11 @@ doctor:
 	@$(MPDEV) doctor
 
 install:
-	@echo "Installing application with deployer: $(NEW_IMAGE)"
-	$(MPDEV) install --deployer=$(NEW_IMAGE) --parameters="{\"global_static_ip_name\": \"my-static-ip\", \"domain\": \"marketplace.go.cloud.stackgen.com\", \"pre_shared_cert_name\": \"<PAT>\", \"suffix\": \"marketplace\", \"stackgenPat\": \"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\", \"name\": \"stackgen-enterprise-platform--1\", \"namespace\": \"test\"}"
+	@echo "Installing application with deployer: $(DEPLOYER_IMAGE_RELEASE)"
+	$(MPDEV) install \
+	  --deployer=$(DEPLOYER_IMAGE_RELEASE)
 
-
-verify: 
+verify: build
 	@echo "Verifying application with deployer: $(DEPLOYER_IMAGE_RELEASE)"
 	$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE_RELEASE)
 
