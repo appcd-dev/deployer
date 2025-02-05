@@ -3,7 +3,7 @@ x-google-marketplace:
   partnerId: "my-partner-id"  # Replace with your actual Partner ID
   solutionId: "my-product-id" # Replace with your actual Product ID
   applicationApiVersion: v1beta1
-  publishedVersion: "1.0.1"
+  publishedVersion: "1.0.2"
   publishedVersionMetadata:
     releaseNote: "Initial release with Job support."
   images:
