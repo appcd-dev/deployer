@@ -13,8 +13,14 @@ spec:
     type: terraform-runner
     version: "1.0.2"
     notes: |-
-      The IP address of the proxy-ingress service is: 
-      $(kubectl get ing proxy-ingress -n stackgen -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+      # This command retrieves the IP address of the proxy-ingress service in the 'stackgen' namespace.
+      # It uses kubectl to get the load balancer ingress IP and then constructs the URL.
+      # The IP is dynamically fetched, so it can be used in any further configuration or access.
+      
+      SERVICE_IP=$(kubectl get ing proxy-ingress -n stackgen -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+      
+      # Output the complete URL for accessing the service.
+      echo "https://${SERVICE_IP}/"
   selector:
     matchLabels:
       app.kubernetes.io/name: "$name"
