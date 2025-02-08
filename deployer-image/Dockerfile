@@ -26,11 +26,13 @@ FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
 ARG TERRAFORM_VERSION=1.5.3
 
-RUN apt-get update && apt-get install -y wget unzip git \
-    && wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ \
-    && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
-    && apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
+RUN apt-get update && apt-get install -y wget unzip git jq && \
+    wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ && \
+    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    chmod +x /usr/local/bin/yq && \
+    apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
 
 LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
