@@ -1,7 +1,7 @@
 x-google-marketplace:
   schemaVersion: v2
-  partnerId: "my-partner-id"  # Replace with your actual Partner ID
-  solutionId: "my-product-id" # Replace with your actual Product ID
+  partnerId: "stackgen-gcp-marketplace"  # Replace with your actual Partner ID
+  solutionId: "" # Replace with your actual Product ID
   applicationApiVersion: v1beta1
   publishedVersion: "1.0.2"
   publishedVersionMetadata:
