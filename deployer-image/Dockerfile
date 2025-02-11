@@ -49,6 +49,3 @@ RUN chmod +x /data/deploy.sh
 
 # Copy Terraform configurations
 COPY terraform/ /data/terraform/
-
-# Define entrypoint
-ENTRYPOINT ["/data/deploy.sh"]
