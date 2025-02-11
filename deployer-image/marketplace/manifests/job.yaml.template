@@ -13,6 +13,7 @@ spec:
       containers:
         - name: terraform-runner
           image: $terraformRunnerImage
+          command: ["/data/deploy.sh"]
           env:
             - name: SUFFIX
               value: $suffix
