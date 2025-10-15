@@ -2,7 +2,7 @@
 
 suffix       = "test-marketplace"
 domain       = "test.stackgen.local"
-STACKGEN_PAT = "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"
+STACKGEN_PAT = "xxxx"
 
 # GCP Resources (for testing, use dummy values)
 global_static_ip_name = "test-stackgen-ip"
