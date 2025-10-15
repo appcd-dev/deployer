@@ -6,7 +6,7 @@ MANIFEST_DIR := marketplace/manifests
 
 # Semantic minor version (TRACK) and full release version
 # TODO(sabith) read from tag
-TRACK ?= 1.1
+TRACK ?= 1.2
 RELEASE ?= ${TRACK}.0
 
 # Docker registry and image names

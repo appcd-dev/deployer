@@ -1,6 +1,25 @@
 domain: &domain ${domain}
+enable_ingress: &enable_ingress ${enable_ingress}
+pullPolicy: &pullPolicy IfNotPresent
+licenseKey: ${domain}
+nginx:
+  client_max_body_size: ${nginx.client_max_body_size}
+
+features:
+  editableIac: ${enable_feature.editableIac}
+  moduleEditor: ${enable_feature.moduleEditor}
+global:
+  temporal:
+    hostport: "temporal-frontend:7233"
+    namespace: ${temporal_namespace}
+
+temporal:
+    hostport: "temporal-frontend:7233"
+    namespace: ${temporal_namespace}
 exporter:
-  enabled: true
+  enabled: ${enable_feature.exporter}
+  helm_workload_5a048be506c75a07b1aeec33d33e56e3:
+    image_pull_policy: *pullPolicy
   helm_ingress_a0d9d3b950a15ef6aeb5d528f0ed1481:
     rules:
       - host: *domain
@@ -8,23 +27,30 @@ exporter:
           paths:
           - path: /exporter
             pathType: Prefix
-llm-gateway:
-  enabled: ${enable_feature.llm}
-  helm_ingress_234714ab33c6554ab8653a4063d20bae:
+stackgen-vault:
+  enabled: ${enable_feature.vault}
+  helm_workload_54a040c89d8252de9a426f2ad1f92af6:
+    image_pull_policy: *pullPolicy
+  helm_ingress_338c921c23b152c68768988f70dcc932:
     rules:
       - host: *domain
         http:
           paths:
-          - path: /ai/public
+          - path: /api/vault
             pathType: Prefix
 appcd:
   domain: *domain
-  serviceAccount:
-    name: ${appcd_service_account}
-  podAnnotations:
-    gke-gcsfuse/volumes: "true"
   auth:
     enabled: ${auth_enabled}
+    enable_group_sync: ${enable_feature.enable_group_sync}
+    need_user_vetting: ${enable_feature.need_user_vetting}
+  autoscaling:
+    maxReplicas: 30
+    targetCPUUtilizationPercentage: 50
+  ingress:
+    enabled: *enable_ingress
+  image:
+    pullPolicy: *pullPolicy
 %{ if length(appcd_admin_emails) != 0 ~}
   rbac:
     admin_emails:
@@ -42,33 +68,97 @@ appcd:
     azure:
       auth_url: ${scm_azure_auth_url}
       token_url: ${scm_azure_token_url}
-  autoscaling:
-    maxReplicas: 20
-    targetCPUUtilizationPercentage: 90
-  resources:
-    requests:
-      memory: "1Gi"
-      cpu: "1"
-    limits:
-      memory: "3Gi"
-      cpu: "2"
   serviceMonitor:
     enabled: ${enable_ops}
+  resources:
+    requests:
+      memory: "1000Mi"
+      cpu: "1000m"
   storage:
     worm:
-      enabled: ${enable_storage}
-  temporal:
-    hostport: "temporal-frontend:7233"
-    namespace: ${temporal_namespace}
+      enabled: ${worm_enabled}
   secrets:
 %{ for secret in appcd_secrets ~}
     - ${secret}
 %{ endfor ~}
 appcd-ui:
   domain: *domain
+  image:
+    pullPolicy: *pullPolicy
+  ingress:
+    enabled: *enable_ingress
 iac-gen:
   domain: *domain
+  image:
+    pullPolicy: *pullPolicy
+  temporal:
+    hostport: "temporal-frontend:7233"
+    namespace: ${temporal_namespace}
+  ingress:
+    enabled: *enable_ingress
+  storage:
+    worm:
+      enabled: ${enable_feature.artifacts_support}
   secrets:
 %{ for secret in appcd_secrets ~}
     - ${secret}
 %{ endfor ~}
+tf-module-service:
+  image:
+    pullPolicy: *pullPolicy
+
+integrations:
+  enabled: ${enable_feature.integrations}
+  helm_workload_1b5f1d019692549bb714785b7636f446:
+    image_pull_policy: *pullPolicy
+  helm_ingress_fed20208495e5e5c9c7adf36f31a3b8e:
+    rules:
+      - host: *domain
+        http:
+          paths:
+            - path: /integrations
+              pathType: Prefix
+  helm_ingress_fed20208495e5e5c9c7adf36f31a3b8e_swagger:
+    rules:
+      - host: *domain
+        http:
+          paths:
+            - path: /integrations/api/swagger
+              pathType: Prefix
+  helm_ingress_fed20208495e5e5c9c7adf36f31a3b8e_mcp:
+    rules:
+      - host: *domain
+        http:
+          paths:
+          - path: /api/mcp
+            pathType: Prefix
+
+backstage-adapter:
+  enabled: ${enable_feature.backstage_adapter}
+  helm_workload_1b5f1d019692549bb714785b7636f446:
+    image_tag: main
+    image_pull_policy: *pullPolicy
+    env:
+      STACKGEN_BASE_API_URL: https://${domain}/integrations/api/
+      STACKGEN_APPSTACKS_URL: https://${domain}/appstacks
+  helm_ingress_fed20208495e5e5c9c7adf36f31a3b8e:
+    rules:
+      - host: *domain
+        http:
+          paths:
+          - path: /backstage-adapter
+            pathType: Prefix
+
+infra-catalog-tracker:
+  helm_workload_29510bf8f3775740827eff66846105ef:
+    image_pull_policy: *pullPolicy
+deployment-manager:
+  helm_workload_eedf62a44e21519893dea9656ef6fc10:
+    image_pull_policy: *pullPolicy
+  helm_ingress_58fbd417de1059fcbef3ce2fc0073ba6:
+    rules:
+      - host: *domain
+        http:
+          paths:
+          - path: /deployment-manager
+            pathType: Prefix
