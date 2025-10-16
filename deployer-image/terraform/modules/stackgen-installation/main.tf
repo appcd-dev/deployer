@@ -180,7 +180,7 @@ resource "kubernetes_secret" "temporal_default_store" {
 }
 
 resource "helm_release" "temporal" {
-  depends_on = [kubernetes_secret.temporal_visibility_store, kubernetes_secret.temporal_default_store]
+  depends_on = [kubernetes_secret.temporal_visibility_store, kubernetes_secret.temporal_default_store, helm_release.postgresql]
   name       = "temporal"
   chart      = "https://github.com/temporalio/helm-charts/releases/download/temporal-${local.temporal_helm_version}/temporal-${local.temporal_helm_version}.tgz"
   namespace  = var.namespace
