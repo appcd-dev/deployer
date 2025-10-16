@@ -3,7 +3,7 @@ x-google-marketplace:
   partnerId: "stackgen-gcp-marketplace"  # Replace with your actual Partner ID
   solutionId: "stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog" # Replace with your actual Product ID
   applicationApiVersion: v1beta1
-  publishedVersion: "AE-1241-fix-vulnerabilties-d-21c3412"
+  publishedVersion: "2.1.1"
   publishedVersionMetadata:
     releaseNote: "Initial release with Job support."
   images:
