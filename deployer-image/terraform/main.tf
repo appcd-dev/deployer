@@ -1,16 +1,3 @@
-terraform {
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 2.0"
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.0"
-    }
-  }
-}
-
 locals {
   labels = merge(var.labels, {
     "maintainer" = "stackgen"
@@ -26,7 +13,6 @@ provider "helm" {
   }
 }
 
-
 provider "kubernetes" {
   host                   = "https://kubernetes.default.svc"
   token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
@@ -34,8 +20,6 @@ provider "kubernetes" {
   # If the cluster CA is signed by a recognized authority, you can set 'insecure = false'
   insecure = false
 }
-
-
 
 module "stackgen" {
   source                = "./modules/stackgen-installation"
