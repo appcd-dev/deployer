@@ -6,8 +6,8 @@ MANIFEST_DIR := marketplace/manifests
 
 # Semantic minor version (TRACK) and full release version
 # TODO(sabith) read from tag
-TRACK ?= 1.6
-RELEASE ?= ${TRACK}.0
+TRACK ?= 2.1
+RELEASE ?= ${TRACK}.1
 
 # Docker registry and image names
 REGISTRY = gcr.io/stackgen-gcp-marketplace
