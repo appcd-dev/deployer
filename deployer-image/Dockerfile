@@ -24,7 +24,7 @@ RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
 # Stage 2: Deployer
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
-ARG TERRAFORM_VERSION=1.5.3
+ARG TERRAFORM_VERSION=1.5.7
 
 RUN apt-get update && apt-get install -y wget unzip git jq && \
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
