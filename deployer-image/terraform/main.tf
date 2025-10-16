@@ -17,33 +17,24 @@ locals {
   })
 }
 
-# provider "helm" {
-#   kubernetes = {
-#     host                   = "https://kubernetes.default.svc"
-#     token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
-#     cluster_ca_certificate = file("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
-#     insecure               = false
-#   }
-# }
-
-
-# provider "kubernetes" {
-#   host                   = "https://kubernetes.default.svc"
-#   token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
-#   cluster_ca_certificate = file("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
-#   # If the cluster CA is signed by a recognized authority, you can set 'insecure = false'
-#   insecure = false
-# }
-
 provider "helm" {
   kubernetes = {
-    config_path = "~/.kube/config"
+    host                   = "https://kubernetes.default.svc"
+    token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
+    cluster_ca_certificate = file("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+    insecure               = false
   }
 }
 
+
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  host                   = "https://kubernetes.default.svc"
+  token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
+  cluster_ca_certificate = file("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+  # If the cluster CA is signed by a recognized authority, you can set 'insecure = false'
+  insecure = false
 }
+
 
 
 module "stackgen" {
