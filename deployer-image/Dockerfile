@@ -11,7 +11,7 @@ RUN apk add --no-cache yq && \
     yq -i ".properties.stackgenPat.default = \"$GH_TOKEN\"" schema.yaml
     
 # Stage 1: Preprocessing schema.yaml
-FROM marketplace.gcr.io/google/debian10 AS build
+FROM marketplace.gcr.io/google/debian11 AS build
 
 # Install tools for envsubst
 RUN apt-get update && apt-get install -y --no-install-recommends gettext && rm -rf /var/lib/apt/lists/*

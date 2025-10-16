@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "*"
+    branches:
+      - "AE-1241/fix-vulnerabilties-d"
 
 env:
   REGISTRY: gcr.io/stackgen-gcp-marketplace
