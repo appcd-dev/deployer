@@ -24,15 +24,32 @@ RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
 # Stage 2: Deployer
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
-ARG TERRAFORM_VERSION=1.5.7
+ARG TERRAFORM_VERSION=1.10.3
+ARG YQ_VERSION=4.44.6
 
-RUN apt-get update && apt-get install -y wget unzip git jq && \
+# Update base system and install security patches
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        unzip \
+        git \
+        jq && \
+    # Install Terraform
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ && \
     rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+    # Install yq with specific version
+    wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 && \
     chmod +x /usr/local/bin/yq && \
-    apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
+    # Upgrade pip to latest version to fix CVE-2024-35195 and CVE-2025-47273
+    python3 -m pip install --upgrade pip setuptools wheel --no-cache-dir && \
+    # Clean up
+    apt-get remove -y wget unzip && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
