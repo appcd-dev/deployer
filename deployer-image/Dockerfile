@@ -71,6 +71,13 @@ LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-ent
 # Increased to 600 seconds to allow for longer deployment times
 ENV WAIT_FOR_READY_TIMEOUT=600
 
+# Set timeout for the entire tester process (deploying, running tester pods, waiting for completion)
+# Increased to 900 seconds to allow for longer deployment and testing times
+ENV TESTER_TIMEOUT=900
+
+# Enable debug logging (set to "true" to enable verbose output and Terraform debug logs)
+ENV DEBUG=false
+
 # Copy processed schema.yaml
 COPY --from=build /workspace/schema.yaml /data/schema.yaml
 
