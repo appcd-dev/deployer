@@ -24,5 +24,6 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: "$name"
-  # componentKinds removed - Application controller not required for marketplace verification
-  # The marketplace tools will determine readiness based on the deployer Job completion
+  componentKinds:
+    - group: batch/v1
+      kind: Job

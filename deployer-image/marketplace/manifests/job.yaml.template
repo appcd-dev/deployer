@@ -25,6 +25,8 @@ spec:
               value: $pre_shared_cert_name
             - name: GLOBAL_STATIC_IP_NAME
               value: $global_static_ip_name
+            - name: WAIT_FOR_READY_TIMEOUT
+              value: "600"
           volumeMounts:
             - name: deployer-config
               mountPath: /data/values
