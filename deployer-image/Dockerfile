@@ -67,6 +67,10 @@ RUN apt-get update && \
 
 LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
+# Set timeout for Application readiness check (default is 300 seconds)
+# Increased to 600 seconds to allow for longer deployment times
+ENV WAIT_FOR_READY_TIMEOUT=600
+
 # Copy processed schema.yaml
 COPY --from=build /workspace/schema.yaml /data/schema.yaml
 
