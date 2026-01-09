@@ -10,7 +10,15 @@ fi
 # Debug: Print script start time
 echo "[INFO] Starting deployment at $(date)"
 echo "[DEBUG] Working directory: $(pwd)"
-echo "[DEBUG] Environment: DEBUG=${DEBUG:-false}, WAIT_FOR_READY_TIMEOUT=${WAIT_FOR_READY_TIMEOUT:-300}"
+echo "[DEBUG] Environment variables:"
+echo "  DEBUG=${DEBUG:-false}"
+echo "  WAIT_FOR_READY_TIMEOUT=${WAIT_FOR_READY_TIMEOUT:-300}"
+echo "  TESTER_TIMEOUT=${TESTER_TIMEOUT:-300}"
+echo "[DEBUG] All environment variables containing TIMEOUT:"
+env | grep -i timeout || echo "  (none found)"
+echo "[DEBUG] Process info:"
+echo "  PID: $$"
+echo "  Command: $0 $*"
 
 VALUES_FILE="/data/values.yaml"
 if [ ! -f "$VALUES_FILE" ]; then

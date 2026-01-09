@@ -75,8 +75,9 @@ ENV WAIT_FOR_READY_TIMEOUT=600
 # Increased to 900 seconds (15 minutes) to allow for longer deployment and testing times
 ENV TESTER_TIMEOUT=900
 
-# Enable debug logging (set to "true" to enable verbose output and Terraform debug logs)
-ENV DEBUG=false
+# Enable debug logging by default to help diagnose issues
+# Set to "false" to disable verbose output and Terraform debug logs
+ENV DEBUG=true
 
 # Copy processed schema.yaml
 COPY --from=build /workspace/schema.yaml /data/schema.yaml
