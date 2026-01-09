@@ -11,7 +11,7 @@ metadata:
 spec:
   descriptor:
     type: terraform-runner
-    version: "3.1.1"
+    version: "3.1.2"
     notes: |-
       # This command retrieves the IP address of the proxy-ingress service in the 'stackgen' namespace.
       # It uses kubectl to get the load balancer ingress IP and then constructs the URL.
@@ -24,6 +24,5 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: "$name"
-  componentKinds:
-    - group: batch/v1
-      kind: Job
+  # componentKinds removed - Application controller not required for marketplace verification
+  # The marketplace tools will determine readiness based on the deployer Job completion
