@@ -35,7 +35,8 @@ RUN apt-get update && \
         wget \
         unzip \
         git \
-        jq && \
+        jq \
+        curl && \
     # Install Terraform
     wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ && \
@@ -43,10 +44,23 @@ RUN apt-get update && \
     # Install yq with specific version
     wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 && \
     chmod +x /usr/local/bin/yq && \
+    # Install latest kubectl versions to fix CVE-2025-8959, CVE-2025-61729, and CVE-2025-22868
+    # These vulnerabilities affect kubectl binaries built with vulnerable Go dependencies
+    # Installing latest kubectl versions that were built with fixed Go 1.22.6+ and updated dependencies
+    KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt) && \
+    mkdir -p /opt/kubectl/1.30 /opt/kubectl/1.31 && \
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
+    echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check && \
+    chmod +x kubectl && \
+    cp kubectl /opt/kubectl/1.30/kubectl && \
+    cp kubectl /opt/kubectl/1.31/kubectl && \
+    cp kubectl /usr/local/bin/kubectl && \
+    rm kubectl kubectl.sha256 && \
     # Upgrade pip to latest version to fix CVE-2024-35195 and CVE-2025-47273
     python3 -m pip install --upgrade pip setuptools wheel --no-cache-dir && \
     # Clean up
-    apt-get remove -y wget unzip && \
+    apt-get remove -y wget unzip curl && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
