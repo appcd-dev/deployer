@@ -6,7 +6,6 @@ metadata:
   labels:
     app.kubernetes.io/instance: $name
 spec:
-  backoffLimit: 0
   template:
     spec:
       serviceAccountName: $operatorServiceAccount
@@ -27,11 +26,11 @@ spec:
             - name: GLOBAL_STATIC_IP_NAME
               value: $global_static_ip_name
             - name: WAIT_FOR_READY_TIMEOUT
-              value: "600"
-            - name: TESTER_TIMEOUT
               value: "900"
+            - name: TESTER_TIMEOUT
+              value: "1200"
             - name: DEBUG
-              value: "true"
+              value: "false"
           volumeMounts:
             - name: deployer-config
               mountPath: /data/values

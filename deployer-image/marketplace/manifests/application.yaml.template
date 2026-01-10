@@ -11,7 +11,7 @@ metadata:
 spec:
   descriptor:
     type: terraform-runner
-    version: "3.1.2"
+    version: "4.1.2"
     notes: |-
       # This command retrieves the IP address of the proxy-ingress service in the 'stackgen' namespace.
       # It uses kubectl to get the load balancer ingress IP and then constructs the URL.
