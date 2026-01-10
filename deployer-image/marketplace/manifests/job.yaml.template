@@ -33,7 +33,8 @@ spec:
               value: "false"
           volumeMounts:
             - name: deployer-config
-              mountPath: /data/values
+              mountPath: /data/values.yaml
+              subPath: values.yaml
               readOnly: true
       volumes:
         - name: deployer-config
