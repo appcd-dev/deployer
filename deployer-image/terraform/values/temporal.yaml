@@ -1,20 +1,9 @@
-nameOverride: ""
-fullnameOverride: ""
-
-# Chart debug mode
-# (eg. disable helm hook delete policy)
 debug: false
 
 # Custom Service account management
 serviceAccount:
   # Whether to create service account or not
   create: false
-
-  # Name of the service account, default: temporal.fullname
-  name:
-
-  # extraAnnotations would let users add additional annotations
-  extraAnnotations:
 
 server:
   enabled: true
@@ -23,10 +12,6 @@ server:
     frontend.keepAliveMaxConnectionAge:
     - value: "5m"
       constraints: {}
-  image:
-    repository: temporalio/server
-    tag: 1.22.4
-    pullPolicy: IfNotPresent
 
   # Global default settings (can be overridden per service)
   replicaCount: 2
@@ -42,35 +27,13 @@ server:
     serviceMonitor:
       enabled: ${enable_ops}
       interval: 30s
-      # Set additional lables to all the ServiceMonitor resources
       additionalLabels:
         release: kube-prometheus-stack
-      # Set Prometheus metric_relabel_configs via ServiceMonitor
-      # Use metricRelabelings to adjust metric and label names as needed
-      metricRelabelings:
-      # - action: replace
-      #   sourceLabels:
-      #   - exported_namespace
-      #   targetLabel: temporal_namespace
-      # - action: replace
-      #   regex: service_errors_(.+)
-      #   replacement: ${1}
-      #   sourceLabels:
-      #   - __name__
-      #   targetLabel: temporal_error_kind
-      # - action: replace
-      #   regex: service_errors_.+
-      #   replacement: temporal_service_errors
-      #   sourceLabels:
-      #   - __name__
-      #   targetLabel: __name__
+      
     prometheus:
       timerType: histogram
   podAnnotations:
     reloader.stakater.com/auto: "true"
-  podLabels: {}
-  secretLabels: {}
-  secretAnnotations: {}
   resources:
     limits:
       cpu: 100m
@@ -78,12 +41,6 @@ server:
     requests:
       cpu: 100m
       memory: 128Mi
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  additionalVolumes: []
-  additionalVolumeMounts: []
-  additionalEnv: []
   securityContext:
     fsGroup: 1000
     runAsUser: 1000
@@ -101,7 +58,7 @@ server:
         driver: "sql"
         sql:
           database: "temporal"
-          driver: "postgres"
+          driver: "postgres12"
           maxConnLifetime: "1h"
           existingSecret: temporal-default-store
           host: ${postgres_host}
@@ -115,7 +72,7 @@ server:
       visibility:
         driver: "sql"
         sql:
-          driver: "postgres"
+          driver: "postgres12"
           database: "temporalvisibility"
           existingSecret: temporal-visibility-store
           host: ${postgres_host}
@@ -139,23 +96,11 @@ server:
       # timerType: histogram
     podAnnotations:
       reloader.stakater.com/auto: "true"
-    podLabels: {}
     resources:
       requests:
-        cpu: 100m
-        memory: 512Mi
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    additionalEnv: []
-    containerSecurityContext: {}
-    topologySpreadConstraints: {}
-    podDisruptionBudget: {}
-    resources:
-      limits:
         cpu: 100m
         memory: 128Mi
-      requests:
+      limits:
         cpu: 100m
         memory: 128Mi
 
@@ -173,7 +118,6 @@ server:
       # timerType: histogram
     podAnnotations:
       reloader.stakater.com/auto: "true"
-    podLabels: {}
     resources:
       requests:
         cpu: 100m
@@ -181,13 +125,6 @@ server:
       limits:
         cpu: 100m
         memory: 512Mi
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    additionalEnv: []
-    containerSecurityContext: {}
-    topologySpreadConstraints: {}
-    podDisruptionBudget: {}
 
   matching:
     service:
@@ -202,7 +139,6 @@ server:
       # timerType: histogram
     podAnnotations:
       reloader.stakater.com/auto: "true"
-    podLabels: {}
     resources:
       limits:
         cpu: 100m
@@ -210,13 +146,6 @@ server:
       requests:
         cpu: 100m
         memory: 512Mi
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    additionalEnv: []
-    containerSecurityContext: {}
-    topologySpreadConstraints: {}
-    podDisruptionBudget: {}
 
   worker:
     service:
@@ -239,32 +168,15 @@ server:
       requests:
         cpu: 100m
         memory: 512Mi
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    additionalEnv: []
-    containerSecurityContext: {}
-    topologySpreadConstraints: {}
-    podDisruptionBudget: {}
 
 admintools:
   enabled: true
-  image:
-    repository: temporalio/admin-tools
-    tag: 1.22.4
-    pullPolicy: IfNotPresent
-
   service:
     type: ClusterIP
     port: 22
     annotations: {}
-  podLabels: {}
   podAnnotations:
     reloader.stakater.com/auto: "true"
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  additionalEnv: []
   resources:
     limits:
       cpu: 100m
@@ -272,9 +184,6 @@ admintools:
     requests:
       cpu: 100m
       memory: 128Mi
-  containerSecurityContext: {}
-  securityContext: {}
-  podDisruptionBudget: {}
 
 web:
   enabled: true
@@ -298,11 +207,6 @@ web:
       cpu: 100m
       memory: 128Mi
 
-  image:
-    repository: temporalio/ui
-    tag: 2.27.3
-    pullPolicy: IfNotPresent
-
   service:
     # set type to NodePort if access to web needs access from outside the cluster
     # for more info see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
@@ -323,29 +227,6 @@ web:
 
   podAnnotations:
     reloader.stakater.com/auto: "true"
-  podLabels: {}
-
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
-
-  nodeSelector: {}
-
-  tolerations: []
-
-  affinity: {}
-
-  additionalVolumes: []
-  additionalVolumeMounts: []
-
-  containerSecurityContext: {}
-
-  securityContext: {}
-
 schema:
   setup:
     enabled: true
@@ -360,50 +241,14 @@ schema:
     requests:
       cpu: 100m
       memory: 128Mi
-  containerSecurityContext: {}
-  securityContext: {}
 
 elasticsearch:
   enabled: false
-  replicas: 3
-  persistence:
-    enabled: false
-  imageTag: 7.17.3
-  host: elasticsearch-master-headless
-  scheme: http
-  port: 9200
-  version: "v7"
-  logLevel: "error"
-  username: ""
-  password: ""
-  visibilityIndex: "temporal_visibility_v1_dev"
-
 prometheus:
   enabled: false
-  nodeExporter:
-    enabled: false
 
 grafana:
   enabled: false
-  replicas: 1
-  testFramework:
-    enabled: false
-  rbac:
-    create: false
-    pspEnabled: false
-    namespaced: true
-  dashboardProviders:
-    dashboardproviders.yaml:
-      apiVersion: 1
-      providers:
-        - name: "default"
-          orgId: 1
-          folder: ""
-          type: file
-          disableDeletion: false
-          editable: true
-          options:
-            path: /var/lib/grafana/dashboards/default
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -442,22 +287,6 @@ grafana:
 
 cassandra:
   enabled: false
-  persistence:
-    enabled: false
-  image:
-    repo: cassandra
-    tag: 3.11.3
-    pullPolicy: IfNotPresent
-  config:
-    cluster_size: 3
-    ports:
-      cql: 9042
-    num_tokens: 4
-    max_heap_size: 512M
-    heap_new_size: 128M
-    seed_size: 0
-  service:
-    type: ClusterIP
 
 mysql:
   enabled: false

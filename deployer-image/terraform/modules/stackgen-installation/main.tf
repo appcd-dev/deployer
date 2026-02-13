@@ -1,6 +1,6 @@
 
 locals {
-  temporal_helm_version             = "0.33.0"
+  temporal_helm_version             = "0.57.0"
   postgresql_administrator_password = random_password.db_password.result
   postgresql_fqdn                   = "postgres-postgresql.${helm_release.postgresql.namespace}.svc.cluster.local"
   postgresql_administrator_login    = "stackgen"
@@ -49,7 +49,7 @@ resource "helm_release" "dex" {
   chart            = "dex"
   namespace        = var.namespace
   create_namespace = false
-  version          = "0.18.0"
+  version          = "0.19.1"
   values = [
     templatefile("./values/dex.yaml", {
       host_domain               = var.domain,
@@ -60,6 +60,14 @@ resource "helm_release" "dex" {
       rds_endpoint = local.postgresql_fqdn
     })
   ]
+}
+
+resource "random_id" "appcd_client_id" {
+  byte_length = 16
+}
+
+resource "random_id" "appcd_client_secret" {
+  byte_length = 36
 }
 
 resource "kubernetes_secret" "ghcr_pkg" {
@@ -109,11 +117,14 @@ resource "kubernetes_secret" "appcd_secrets" {
   type = "Opaque"
 
   data = {
-    rds_port          = "5432"
-    rds_password      = local.postgresql_administrator_password
-    rds_endpoint      = local.postgresql_fqdn
-    rds_read_endpoint = local.postgresql_fqdn
-    rds_username      = local.postgresql_administrator_login
+    rds_port            = "5432"
+    rds_password        = local.postgresql_administrator_password
+    rds_endpoint        = local.postgresql_fqdn
+    rds_host            = local.postgresql_fqdn
+    rds_read_endpoint   = local.postgresql_fqdn
+    rds_username        = local.postgresql_administrator_login
+    appcd_client_id     = random_id.appcd_client_id.hex
+    appcd_client_secret = random_id.appcd_client_secret.hex
   }
 }
 
@@ -169,7 +180,7 @@ resource "kubernetes_secret" "temporal_default_store" {
 }
 
 resource "helm_release" "temporal" {
-  depends_on = [kubernetes_secret.temporal_visibility_store, kubernetes_secret.temporal_default_store]
+  depends_on = [kubernetes_secret.temporal_visibility_store, kubernetes_secret.temporal_default_store, helm_release.postgresql]
   name       = "temporal"
   chart      = "https://github.com/temporalio/helm-charts/releases/download/temporal-${local.temporal_helm_version}/temporal-${local.temporal_helm_version}.tgz"
   namespace  = var.namespace
@@ -187,16 +198,14 @@ resource "helm_release" "temporal" {
 }
 
 resource "kubernetes_persistent_volume_claim" "this" {
-  count      = length(var.storage.volume) > 0 ? 1 : 0
   depends_on = [kubernetes_namespace.this]
   metadata {
     name      = "storage-${var.namespace}"
     namespace = var.namespace
   }
   spec {
-    access_modes       = ["ReadWriteMany"]
-    volume_name        = var.storage.volume
-    storage_class_name = var.storage.class
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = "standard-rwo"
     resources {
       requests = {
         storage = "100Gi"
@@ -211,6 +220,7 @@ locals {
     appcd_secrets : concat([kubernetes_secret.appcd_secrets.metadata[0].name, kubernetes_secret.appcd_scm_secrets.metadata[0].name], var.additional_secrets)
     enable_ops : var.enable_ops
     domain : var.domain
+    enable_ingress : true
     auth_enabled : var.stackgen_authentication.type != "none"
     scm_github_auth_url : try(var.scm_configuration.github_config.auth_url, "")
     scm_github_token_url : try(var.scm_configuration.github_config.token_url, "")
@@ -222,6 +232,8 @@ locals {
     appcd_admin_emails : var.admin_emails
     enable_storage : length(var.storage.volume) > 0
     appcd_service_account : local.appcd_service_account
+    nginx : var.nginx_config
+    worm_enabled : false
   })
 }
 

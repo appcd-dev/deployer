@@ -4,10 +4,8 @@ MPDEV := $(BIN_DIR)/mpdev
 SCHEMA_FILE := marketplace/schema.yaml
 MANIFEST_DIR := marketplace/manifests
 
-# Semantic minor version (TRACK) and full release version
-# TODO(sabith) read from tag
-TRACK ?= 1.1
-RELEASE ?= ${TRACK}.0
+TRACK ?= 4.1
+RELEASE ?= ${TRACK}.2
 
 # Docker registry and image names
 REGISTRY = gcr.io/stackgen-gcp-marketplace
@@ -15,7 +13,7 @@ APP_NAME = stackgen-deployer
 DEPLOYER_IMAGE_RELEASE := $(REGISTRY)/$(APP_NAME)/deployer:$(RELEASE)
 DEPLOYER_IMAGE_TRACK := $(REGISTRY)/$(APP_NAME)/deployer:$(TRACK)
 
-.PHONY: all push setup doctor install verify validate clean help
+.PHONY: all push setup doctor install install-crd verify validate clean help
 
 all: help
 
@@ -52,7 +50,9 @@ install:
 	$(MPDEV) install \
 	  --deployer=$(DEPLOYER_IMAGE_RELEASE)
 
-verify: build
+
+
+verify: 
 	@echo "Verifying application with deployer: $(DEPLOYER_IMAGE_RELEASE)"
 	$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE_RELEASE)
 
