@@ -4,6 +4,7 @@ metadata:
   name: $name-job
   namespace: $namespace
   labels:
+    app.kubernetes.io/name: $name
     app.kubernetes.io/instance: $name
 spec:
   template:
