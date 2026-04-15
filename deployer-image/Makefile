@@ -4,8 +4,8 @@ MPDEV := $(BIN_DIR)/mpdev
 SCHEMA_FILE := marketplace/schema.yaml
 MANIFEST_DIR := marketplace/manifests
 
-TRACK ?= 4.1
-RELEASE ?= ${TRACK}.2
+TRACK ?= 4.2
+RELEASE ?= ${TRACK}.0
 
 # Docker registry and image names
 REGISTRY = gcr.io/stackgen-gcp-marketplace

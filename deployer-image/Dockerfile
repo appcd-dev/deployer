@@ -24,7 +24,7 @@ RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
 # Stage 2: Deployer
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
-ARG TERRAFORM_VERSION=1.13.4
+ARG TERRAFORM_VERSION=1.14.8
 ARG YQ_VERSION=4.44.6
 
 # Update base system and install security patches
@@ -44,9 +44,7 @@ RUN apt-get update && \
     # Install yq with specific version
     wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 && \
     chmod +x /usr/local/bin/yq && \
-    # Install latest kubectl versions to fix CVE-2025-8959, CVE-2025-61729, and CVE-2025-22868
-    # These vulnerabilities affect kubectl binaries built with vulnerable Go dependencies
-    # Installing latest kubectl versions that were built with fixed Go 1.22.6+ and updated dependencies
+    # Install latest kubectl to get security patches (including CVE-2026-33186 grpc-go auth bypass)
     KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt) && \
     mkdir -p /opt/kubectl/1.30 /opt/kubectl/1.31 && \
     curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
@@ -57,8 +55,8 @@ RUN apt-get update && \
     cp kubectl /opt/kubectl/1.31/kubectl && \
     cp kubectl /usr/local/bin/kubectl && \
     rm kubectl kubectl.sha256 && \
-    # Upgrade pip to latest version to fix CVE-2024-35195 and CVE-2025-47273
-    python3 -m pip install --upgrade pip setuptools wheel --no-cache-dir && \
+    # Upgrade pip and fix CVE-2026-27459 (pyOpenSSL buffer overflow in DTLS cookie callback)
+    python3 -m pip install --upgrade pip setuptools wheel "pyOpenSSL>=26.0.0" --no-cache-dir && \
     # Clean up
     apt-get remove -y wget unzip curl && \
     apt-get autoremove -y && \
