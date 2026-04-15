@@ -24,8 +24,8 @@ RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
 # Stage 2: Deployer
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
-ARG TERRAFORM_VERSION=1.14.8
-ARG YQ_VERSION=4.44.6
+ARG TERRAFORM_VERSION=1.15.0-rc1
+ARG YQ_VERSION=4.52.5
 
 # Update base system and install security patches
 RUN apt-get update && \
