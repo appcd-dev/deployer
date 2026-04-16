@@ -56,7 +56,7 @@ RUN apt-get update && \
     cp kubectl /usr/local/bin/kubectl && \
     rm kubectl kubectl.sha256 && \
     # Upgrade pip and fix CVE-2026-27459 (pyOpenSSL buffer overflow in DTLS cookie callback)
-    python3 -m pip install --upgrade pip setuptools wheel "pyOpenSSL>=26.0.0" --no-cache-dir && \
+    python3 -m pip install --upgrade pip setuptools wheel "pyOpenSSL>=26.0.0" "cryptography>=46.0.7" --no-cache-dir && \
     # Clean up
     apt-get remove -y wget unzip curl && \
     apt-get autoremove -y && \
@@ -91,6 +91,3 @@ RUN chmod +x /data/deploy.sh
 
 # Copy Terraform configurations
 COPY terraform/ /data/terraform/
-
-# Define entrypoint
-ENTRYPOINT ["/data/deploy.sh"]
