@@ -5,7 +5,7 @@ SCHEMA_FILE := marketplace/schema.yaml
 MANIFEST_DIR := marketplace/manifests
 
 TRACK ?= 4.2
-RELEASE ?= ${TRACK}.4
+RELEASE ?= ${TRACK}.5
 
 # Docker registry and image names
 REGISTRY = gcr.io/stackgen-gcp-marketplace
