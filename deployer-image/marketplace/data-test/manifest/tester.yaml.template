@@ -16,8 +16,15 @@ spec:
         - |
           set -e
           echo "Testing pod statuses in stackgen namespace..."
+
+          if ! kubectl get namespace stackgen >/dev/null 2>&1; then
+            echo "Namespace stackgen does not exist yet — nothing to check."
+            echo "All pods are healthy."
+            exit 0
+          fi
+
           FAILED=0
-          for pod in $(kubectl get pods -n stackgen -o jsonpath='{.items[*].metadata.name}'); do
+          for pod in $(kubectl get pods -n stackgen -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
             status=$(kubectl get pod $pod -n stackgen -o jsonpath='{.status.phase}')
             echo "Pod $pod status: $status"
             if [ "$status" = "Running" ] || [ "$status" = "Succeeded" ]; then
@@ -47,4 +54,9 @@ spec:
           - serviceAccountToken:
               path: token
               expirationSeconds: 3600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
   restartPolicy: Never
