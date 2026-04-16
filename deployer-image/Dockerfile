@@ -66,12 +66,13 @@ RUN apt-get update && \
 LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
 # Set timeout for Application readiness check (default is 300 seconds)
-# Increased to 600 seconds (10 minutes) to allow for longer deployment times
-ENV WAIT_FOR_READY_TIMEOUT=600
+# Increased to 900 seconds (15 minutes) to allow for heavy Terraform deployment
+# (PostgreSQL + Temporal + Stackgen Helm charts all with wait=true)
+ENV WAIT_FOR_READY_TIMEOUT=900
 
 # Set timeout for the entire tester process (deploying, running tester pods, waiting for completion)
-# Increased to 900 seconds (15 minutes) to allow for longer deployment and testing times
-ENV TESTER_TIMEOUT=900
+# Increased to 1200 seconds (20 minutes) to allow for longer deployment and testing times
+ENV TESTER_TIMEOUT=1200
 
 # Enable debug logging by default to help diagnose issues
 # Set to "false" to disable verbose output and Terraform debug logs

@@ -16,15 +16,21 @@ spec:
         - |
           set -e
           echo "Testing pod statuses in stackgen namespace..."
+          FAILED=0
           for pod in $(kubectl get pods -n stackgen -o jsonpath='{.items[*].metadata.name}'); do
             status=$(kubectl get pod $pod -n stackgen -o jsonpath='{.status.phase}')
             echo "Pod $pod status: $status"
-            if [ "$status" != "Running" ]; then
-              echo "Pod $pod is not running. Exiting."
-              exit 1
+            if [ "$status" = "Running" ] || [ "$status" = "Succeeded" ]; then
+              continue
             fi
+            echo "Pod $pod is in unexpected phase: $status"
+            FAILED=1
           done
-          echo "All Pods are running."
+          if [ "$FAILED" -ne 0 ]; then
+            echo "One or more pods are not healthy. Exiting."
+            exit 1
+          fi
+          echo "All pods are healthy."
       env:
         - name: KUBERNETES_SERVICE_HOST
           value: "kubernetes.default.svc"
