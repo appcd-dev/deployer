@@ -21,10 +21,25 @@ COPY marketplace/schema.yaml /workspace/schema.yaml
 RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
     mv /workspace/schema.yaml.processed /workspace/schema.yaml
 
+# Stage 1c: Build Terraform from source with a patched Go toolchain.
+# Terraform 1.16.1 is released compiled with go1.26.4. CVE-2026-39821
+# (Go stdlib net/http idna) is fixed only in go1.26.6+, so HashiCorp's
+# released binary is flagged Critical by GCP Marketplace scanning.
+# Compile the same source tag against go1.27.1 instead.
+# Revert to the released binary once HashiCorp ships on go1.26.6+.
+FROM golang:1.27.1-bookworm AS terraform-build
+ARG TERRAFORM_VERSION=1.16.1
+RUN git clone --depth 1 --branch v${TERRAFORM_VERSION} \
+      https://github.com/hashicorp/terraform.git /src
+WORKDIR /src
+RUN CGO_ENABLED=0 GOTOOLCHAIN=local \
+    go build -trimpath \
+      -ldflags="-s -w -X github.com/hashicorp/terraform/version.dev=no" \
+      -o /out/terraform .
+
 # Stage 2: Deployer
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
-ARG TERRAFORM_VERSION=1.16.1
 ARG YQ_VERSION=4.53.6
 
 # Update base system and install security patches
@@ -37,10 +52,6 @@ RUN apt-get update && \
         git \
         jq \
         curl && \
-    # Install Terraform
-    wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ && \
-    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
     # Install yq with specific version
     wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 && \
     chmod +x /usr/local/bin/yq && \
@@ -62,6 +73,9 @@ RUN apt-get update && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Terraform compiled in the terraform-build stage (see CVE-2026-39821)
+COPY --from=terraform-build /out/terraform /usr/local/bin/terraform
 
 LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
 
