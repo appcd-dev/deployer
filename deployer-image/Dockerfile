@@ -55,15 +55,19 @@ RUN apt-get update && \
     # Install yq with specific version
     wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 && \
     chmod +x /usr/local/bin/yq && \
-    # Install latest kubectl to get security patches (including CVE-2026-33186 grpc-go auth bypass)
+    # Install latest kubectl to get security patches.
+    # The base image ships its own kubectl copies under /opt/kubectl/v<minor>/,
+    # which the Marketplace deployer framework selects from at runtime. Those are
+    # what carry CVE-2026-39821 (Go stdlib, built with go1.26.5). Overwrite every
+    # directory the base ships rather than hardcoding versions — the earlier
+    # non-'v' 1.30/1.31 paths were created fresh and never read by anything.
     KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt) && \
-    mkdir -p /opt/kubectl/1.30 /opt/kubectl/1.31 && \
     curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
     curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
     echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check && \
     chmod +x kubectl && \
-    cp kubectl /opt/kubectl/1.30/kubectl && \
-    cp kubectl /opt/kubectl/1.31/kubectl && \
+    echo "Patching base-image kubectl copies:" && ls -d /opt/kubectl/*/ && \
+    ls -d /opt/kubectl/*/ | while read -r d; do cp kubectl "${d}kubectl"; done && \
     cp kubectl /usr/local/bin/kubectl && \
     rm kubectl kubectl.sha256 && \
     # Upgrade pip and fix CVE-2026-27459 (pyOpenSSL buffer overflow in DTLS cookie callback)
