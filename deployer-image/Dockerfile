@@ -13,8 +13,15 @@ RUN apk add --no-cache yq && \
 # Stage 1: Preprocessing schema.yaml
 FROM marketplace.gcr.io/google/debian11 AS build
 
-# Install tools for envsubst
-RUN apt-get update && apt-get install -y --no-install-recommends gettext && rm -rf /var/lib/apt/lists/*
+# Install tools for envsubst.
+# Debian 11 (bullseye) LTS has ended and its security Release file expired on
+# 2026-09-07, so apt rejects the index and the build fails. Skip only the expiry
+# check — GPG signature verification still applies. This stage is build-only:
+# its sole output is /workspace/schema.yaml, so nothing here ships in the image.
+# TODO: move this stage off EOL bullseye (OPS-1744 follow-up).
+RUN apt-get -o Acquire::Check-Valid-Until=false update && \
+    apt-get install -y --no-install-recommends gettext && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy schema.yaml and preprocess it with envsubst
 COPY marketplace/schema.yaml /workspace/schema.yaml
