@@ -223,6 +223,10 @@ locals {
     enable_storage : length(var.storage.volume) > 0
     appcd_service_account : local.appcd_service_account
   })
+
+  imagesYAML = templatefile("./values/images.yaml", {
+    component_versions = var.component_versions
+  })
 }
 
 resource "helm_release" "stackgen" {
@@ -235,7 +239,7 @@ resource "helm_release" "stackgen" {
   wait      = true
   values = [
     local.appcdYAML,
-    templatefile("./values/images.yaml", {})
+    local.imagesYAML
   ]
 }
 

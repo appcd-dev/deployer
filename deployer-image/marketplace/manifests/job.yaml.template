@@ -25,6 +25,26 @@ spec:
               value: $pre_shared_cert_name
             - name: GLOBAL_STATIC_IP_NAME
               value: $global_static_ip_name
+            - name: GUILD_ENABLED
+              value: "$guildEnabled"
+            - name: APPCD_VERSION
+              value: "$appcdVersion"
+            - name: IACGEN_VERSION
+              value: "$iacgenVersion"
+            - name: UI_VERSION
+              value: "$uiVersion"
+            - name: EXPORTER_VERSION
+              value: "$exporterVersion"
+            - name: LLM_GATEWAY_VERSION
+              value: "$llmGatewayVersion"
+            - name: VAULT_VERSION
+              value: "$vaultVersion"
+            - name: GUILD_VERSION
+              value: "$guildVersion"
+            - name: GATEWAY_VERSION
+              value: "$guildGatewayVersion"
+            - name: GUILD_UI_VERSION
+              value: "$guildUiVersion"
           volumeMounts:
             - name: deployer-config
               mountPath: /data/values
