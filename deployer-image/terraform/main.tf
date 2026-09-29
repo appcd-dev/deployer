@@ -5,14 +5,13 @@ locals {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = "https://kubernetes.default.svc"
     token                  = file("/var/run/secrets/kubernetes.io/serviceaccount/token")
     cluster_ca_certificate = file("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
     insecure               = false
   }
 }
-
 
 provider "kubernetes" {
   host                   = "https://kubernetes.default.svc"
@@ -21,8 +20,6 @@ provider "kubernetes" {
   # If the cluster CA is signed by a recognized authority, you can set 'insecure = false'
   insecure = false
 }
-
-
 
 module "stackgen" {
   source                = "./modules/stackgen-installation"
@@ -33,4 +30,6 @@ module "stackgen" {
   pre_shared_cert_name  = var.pre_shared_cert_name
   component_versions    = var.component_versions
   guild_enabled         = var.guild_enabled
+  nginx_config          = var.nginx_config
+  enable_feature        = var.enable_feature
 }

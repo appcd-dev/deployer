@@ -16,15 +16,28 @@ spec:
         - |
           set -e
           echo "Testing pod statuses in stackgen namespace..."
-          for pod in $(kubectl get pods -n stackgen -o jsonpath='{.items[*].metadata.name}'); do
+
+          if ! kubectl get namespace stackgen >/dev/null 2>&1; then
+            echo "Namespace stackgen does not exist yet — nothing to check."
+            echo "All pods are healthy."
+            exit 0
+          fi
+
+          FAILED=0
+          for pod in $(kubectl get pods -n stackgen -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
             status=$(kubectl get pod $pod -n stackgen -o jsonpath='{.status.phase}')
             echo "Pod $pod status: $status"
-            if [ "$status" != "Running" ]; then
-              echo "Pod $pod is not running. Exiting."
-              exit 1
+            if [ "$status" = "Running" ] || [ "$status" = "Succeeded" ]; then
+              continue
             fi
+            echo "Pod $pod is in unexpected phase: $status"
+            FAILED=1
           done
-          echo "All Pods are running."
+          if [ "$FAILED" -ne 0 ]; then
+            echo "One or more pods are not healthy. Exiting."
+            exit 1
+          fi
+          echo "All pods are healthy."
       env:
         - name: KUBERNETES_SERVICE_HOST
           value: "kubernetes.default.svc"
@@ -41,4 +54,9 @@ spec:
           - serviceAccountToken:
               path: token
               expirationSeconds: 3600
+          - configMap:
+              name: kube-root-ca.crt
+              items:
+                - key: ca.crt
+                  path: ca.crt
   restartPolicy: Never

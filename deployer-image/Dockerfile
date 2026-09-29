@@ -11,30 +11,97 @@ RUN apk add --no-cache yq && \
     yq -i ".properties.stackgenPat.default = \"$GH_TOKEN\"" schema.yaml
     
 # Stage 1: Preprocessing schema.yaml
-FROM marketplace.gcr.io/google/debian10 AS build
+FROM marketplace.gcr.io/google/debian11 AS build
 
-# Install tools for envsubst
-RUN apt-get update && apt-get install -y --no-install-recommends gettext && rm -rf /var/lib/apt/lists/*
+# Install tools for envsubst.
+# Debian 11 (bullseye) LTS has ended and its security Release file expired on
+# 2026-09-07, so apt rejects the index and the build fails. Skip only the expiry
+# check — GPG signature verification still applies. This stage is build-only:
+# its sole output is /workspace/schema.yaml, so nothing here ships in the image.
+# TODO: move this stage off EOL bullseye (OPS-1744 follow-up).
+RUN apt-get -o Acquire::Check-Valid-Until=false update && \
+    apt-get install -y --no-install-recommends gettext && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy schema.yaml and preprocess it with envsubst
 COPY marketplace/schema.yaml /workspace/schema.yaml
 RUN envsubst < /workspace/schema.yaml > /workspace/schema.yaml.processed && \
     mv /workspace/schema.yaml.processed /workspace/schema.yaml
 
+# Stage 1c: Build Terraform from source with a patched Go toolchain.
+# Terraform 1.16.1 is released compiled with go1.26.4. CVE-2026-39821
+# (Go stdlib net/http idna) is fixed only in go1.26.6+, so HashiCorp's
+# released binary is flagged Critical by GCP Marketplace scanning.
+# Compile the same source tag against go1.27.1 instead.
+# Revert to the released binary once HashiCorp ships on go1.26.6+.
+FROM golang:1.27.1-bookworm AS terraform-build
+ARG TERRAFORM_VERSION=1.16.1
+RUN git clone --depth 1 --branch v${TERRAFORM_VERSION} \
+      https://github.com/hashicorp/terraform.git /src
+WORKDIR /src
+RUN CGO_ENABLED=0 GOTOOLCHAIN=local \
+    go build -trimpath \
+      -ldflags="-s -w -X github.com/hashicorp/terraform/version.dev=no" \
+      -o /out/terraform .
+
 # Stage 2: Deployer
 FROM gcr.io/cloud-marketplace-tools/k8s/deployer_envsubst:latest
 
-ARG TERRAFORM_VERSION=1.5.3
+ARG YQ_VERSION=4.53.6
 
-RUN apt-get update && apt-get install -y wget unzip git jq && \
-    wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin/ && \
-    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
-    wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+# Update base system and install security patches
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        unzip \
+        git \
+        jq \
+        curl && \
+    # Install yq with specific version
+    wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 && \
     chmod +x /usr/local/bin/yq && \
-    apt-get remove -y wget unzip && apt-get autoremove -y && apt-get clean
+    # Install latest kubectl to get security patches.
+    # The base image ships its own kubectl copies under /opt/kubectl/v<minor>/,
+    # which the Marketplace deployer framework selects from at runtime. Those are
+    # what carry CVE-2026-39821 (Go stdlib, built with go1.26.5). Overwrite every
+    # directory the base ships rather than hardcoding versions — the earlier
+    # non-'v' 1.30/1.31 paths were created fresh and never read by anything.
+    KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt) && \
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
+    echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check && \
+    chmod +x kubectl && \
+    echo "Patching base-image kubectl copies:" && ls -d /opt/kubectl/*/ && \
+    ls -d /opt/kubectl/*/ | while read -r d; do cp kubectl "${d}kubectl"; done && \
+    cp kubectl /usr/local/bin/kubectl && \
+    rm kubectl kubectl.sha256 && \
+    # Upgrade pip and fix CVE-2026-27459 (pyOpenSSL buffer overflow in DTLS cookie callback)
+    python3 -m pip install --upgrade pip setuptools wheel "pyOpenSSL>=26.0.0" "cryptography>=46.0.7" --no-cache-dir && \
+    # Clean up
+    apt-get remove -y wget unzip curl && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Terraform compiled in the terraform-build stage (see CVE-2026-39821)
+COPY --from=terraform-build /out/terraform /usr/local/bin/terraform
 
 LABEL com.googleapis.cloudmarketplace.product.service.name=services/stackgen-enterprise-platform-k8s-v2.endpoints.stackgen-gcp-marketplace.cloud.goog
+
+# Set timeout for Application readiness check (default is 300 seconds)
+# Increased to 900 seconds (15 minutes) to allow for heavy Terraform deployment
+# (PostgreSQL + Temporal + Stackgen Helm charts all with wait=true)
+ENV WAIT_FOR_READY_TIMEOUT=900
+
+# Set timeout for the entire tester process (deploying, running tester pods, waiting for completion)
+# Increased to 1200 seconds (20 minutes) to allow for longer deployment and testing times
+ENV TESTER_TIMEOUT=1200
+
+# Enable debug logging by default to help diagnose issues
+# Set to "false" to disable verbose output and Terraform debug logs
+ENV DEBUG=true
 
 # Copy processed schema.yaml
 COPY --from=build /workspace/schema.yaml /data/schema.yaml
@@ -49,6 +116,3 @@ RUN chmod +x /data/deploy.sh
 
 # Copy Terraform configurations
 COPY terraform/ /data/terraform/
-
-# Define entrypoint
-ENTRYPOINT ["/data/deploy.sh"]

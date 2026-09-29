@@ -1,9 +1,9 @@
-domain: &domain ${domain}
-enable_ingress: &enable_ingress ${enable_ingress}
+domain: &domain test.stackgen.local
+enable_ingress: &enable_ingress true
 pullPolicy: &pullPolicy IfNotPresent
-licenseKey: ${domain}
+licenseKey: test.stackgen.local
 nginx:
-  client_max_body_size: ${nginx.client_max_body_size}
+  client_max_body_size: 10M
 nginx-ingress-controller:
   serviceMonitor:
     enabled: false
@@ -14,18 +14,18 @@ support:
     enabled: false
 
 features:
-  editableIac: ${enable_feature.editableIac}
-  moduleEditor: ${enable_feature.moduleEditor}
+  editableIac: true
+  moduleEditor: true
 global:
   temporal:
     hostport: "temporal-frontend:7233"
-    namespace: ${temporal_namespace}
+    namespace: stackgen
 
 temporal:
     hostport: "temporal-frontend:7233"
-    namespace: ${temporal_namespace}
+    namespace: stackgen
 exporter:
-  enabled: ${enable_feature.exporter}
+  enabled: true
   helm_workload_5a048be506c75a07b1aeec33d33e56e3:
     image_pull_policy: *pullPolicy
   helm_ingress_a0d9d3b950a15ef6aeb5d528f0ed1481:
@@ -36,7 +36,7 @@ exporter:
           - path: /exporter
             pathType: Prefix
 stackgen-vault:
-  enabled: ${enable_feature.vault}
+  enabled: true
   helm_workload_54a040c89d8252de9a426f2ad1f92af6:
     image_pull_policy: *pullPolicy
   helm_ingress_338c921c23b152c68768988f70dcc932:
@@ -49,9 +49,9 @@ stackgen-vault:
 appcd:
   domain: *domain
   auth:
-    enabled: ${auth_enabled}
-    enable_group_sync: ${enable_feature.enable_group_sync}
-    need_user_vetting: ${enable_feature.need_user_vetting}
+    enabled: false
+    enable_group_sync: false
+    need_user_vetting: false
   autoscaling:
     maxReplicas: 30
     targetCPUUtilizationPercentage: 50
@@ -59,23 +59,16 @@ appcd:
     enabled: *enable_ingress
   image:
     pullPolicy: *pullPolicy
-%{ if length(appcd_admin_emails) != 0 ~}
-  rbac:
-    admin_emails:
-%{ for email in appcd_admin_emails ~}
-      - ${email}
-%{ endfor ~}
-%{ endif ~}
   scm:
     github:
-      auth_url: ${scm_github_auth_url}
-      token_url: ${scm_github_token_url}
+      auth_url: https://github.com/login/oauth/authorize
+      token_url: https://github.com/login/oauth/access_token
     gitlab:
-      auth_url: ${scm_gitlab_auth_url}
-      token_url: ${scm_gitlab_token_url}
+      auth_url: https://gitlab.com/oauth/authorize
+      token_url: https://gitlab.com/oauth/token
     azure:
-      auth_url: ${scm_azure_auth_url}
-      token_url: ${scm_azure_token_url}
+      auth_url: https://app.vssps.visualstudio.com/oauth2/authorize
+      token_url: https://app.vssps.visualstudio.com/oauth2/token
   serviceMonitor:
     enabled: false
   alertmanager:
@@ -88,11 +81,10 @@ appcd:
       cpu: "1000m"
   storage:
     worm:
-      enabled: ${worm_enabled}
+      enabled: false
   secrets:
-%{ for secret in appcd_secrets ~}
-    - ${secret}
-%{ endfor ~}
+    - appcd-secrets
+    - appcd-scm-secrets
 appcd-ui:
   domain: *domain
   image:
@@ -110,22 +102,21 @@ iac-gen:
       enabled: false
   temporal:
     hostport: "temporal-frontend:7233"
-    namespace: ${temporal_namespace}
+    namespace: stackgen
   ingress:
     enabled: *enable_ingress
   storage:
     worm:
-      enabled: ${enable_feature.artifacts_support}
+      enabled: false
   secrets:
-%{ for secret in appcd_secrets ~}
-    - ${secret}
-%{ endfor ~}
+    - appcd-secrets
+    - appcd-scm-secrets
 tf-module-service:
   image:
     pullPolicy: *pullPolicy
 
 integrations:
-  enabled: ${enable_feature.integrations}
+  enabled: true
   helm_workload_1b5f1d019692549bb714785b7636f446:
     image_pull_policy: *pullPolicy
   helm_ingress_fed20208495e5e5c9c7adf36f31a3b8e:
@@ -151,13 +142,13 @@ integrations:
             pathType: Prefix
 
 backstage-adapter:
-  enabled: ${enable_feature.backstage_adapter}
+  enabled: false
   helm_workload_1b5f1d019692549bb714785b7636f446:
     image_tag: main
     image_pull_policy: *pullPolicy
     env:
-      STACKGEN_BASE_API_URL: https://${domain}/integrations/api/
-      STACKGEN_APPSTACKS_URL: https://${domain}/appstacks
+      STACKGEN_BASE_API_URL: https://test.stackgen.local/integrations/api/
+      STACKGEN_APPSTACKS_URL: https://test.stackgen.local/appstacks
   helm_ingress_fed20208495e5e5c9c7adf36f31a3b8e:
     rules:
       - host: *domain

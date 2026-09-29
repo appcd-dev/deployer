@@ -4,6 +4,7 @@ metadata:
   name: $name-job
   namespace: $namespace
   labels:
+    app.kubernetes.io/name: $name
     app.kubernetes.io/instance: $name
 spec:
   template:
@@ -25,6 +26,12 @@ spec:
               value: $pre_shared_cert_name
             - name: GLOBAL_STATIC_IP_NAME
               value: $global_static_ip_name
+            - name: WAIT_FOR_READY_TIMEOUT
+              value: "900"
+            - name: TESTER_TIMEOUT
+              value: "1200"
+            - name: DEBUG
+              value: "false"
             - name: GUILD_ENABLED
               value: "$guildEnabled"
             - name: APPCD_VERSION
@@ -47,7 +54,8 @@ spec:
               value: "$guildUiVersion"
           volumeMounts:
             - name: deployer-config
-              mountPath: /data/values
+              mountPath: /data/values.yaml
+              subPath: values.yaml
               readOnly: true
       volumes:
         - name: deployer-config

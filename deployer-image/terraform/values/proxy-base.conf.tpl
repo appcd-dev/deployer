@@ -14,6 +14,11 @@ server {
     add_header Referrer-Policy "strict-origin";
     add_header Permissions-Policy "geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()";
     client_max_body_size 10m;
+    # AppCD auth subrequests return large identity/scope headers; buffer the full
+    # header so NGINX does not fail authorization with 502 for valid sessions.
+    proxy_buffer_size 64k;
+    proxy_buffers 8 64k;
+    proxy_busy_buffers_size 128k;
     location = /healthz {
         default_type text/plain;
         return 200 'OK';
@@ -33,7 +38,8 @@ server {
           "auth" = {"path" = "/auth"},
           "appcd" = {"path" = "/appcd"},
           "iac-gen" = {"path" = "/iac-gen"},
-          "exporter" = {"path" = "/exporter"}
+          "exporter" = {"path" = "/exporter"},
+          "vault" = {"path" = "/api/vault"}
         }, guild_enabled ? {
           "guild" = {"path" = "/guild"},
           "guild-ui" = {"path" = "/app/settings"}
@@ -121,6 +127,29 @@ server {
         rewrite /appcd/(.*) /$1 break;
 
         proxy_pass http://appcd.${namespace}.svc.cluster.local:8080;
+    }
+
+    # Vault API, matching the appcd-dist stackgen-vault minion route.
+    location /api/vault {
+        auth_request /auth;
+        auth_request_set $login $upstream_http_x_appcd_login;
+        proxy_set_header X-Appcd-Login $login;
+        auth_request_set $principal_name $upstream_http_x_stackgen_principal;
+        proxy_set_header X-Stackgen-Principal $principal_name;
+        auth_request_set $appcd_org $upstream_http_x_appcd_org;
+        proxy_set_header X-Appcd-Org $appcd_org;
+        auth_request_set $appcd_scopes $upstream_http_x_appcd_scopes;
+        proxy_set_header X-Appcd-Scopes $appcd_scopes;
+        auth_request_set $stackgen_tenant_identifier $upstream_http_x_stackgen_tenant_identifier;
+        proxy_set_header X-Stackgen-Tenant-Identifier $stackgen_tenant_identifier;
+        auth_request_set $stackgen_tenant $upstream_http_x_stackgen_tenant;
+        proxy_set_header X-Stackgen-Tenant $stackgen_tenant;
+        auth_request_set $appcd_session $upstream_http_x_appcd_session;
+        proxy_set_header X-Appcd-Session $appcd_session;
+        auth_request_set $session_type $upstream_http_x_appcd_session_type;
+        proxy_set_header X-Appcd-Session-Type $session_type;
+        rewrite ^/api/vault/(.*)$ /$1 break;
+        proxy_pass http://stackgen-vault.${namespace}.svc.cluster.local:8080;
     }
 
     # Guild API, authenticated like AWS ingress minions, with the prefix removed.

@@ -27,29 +27,34 @@ locals {
       persistence = {
         enabled      = true
         size         = "50Gi"
-        storageClass = "standard"
+        storageClass = "standard-rwo"
       }
       resources = {
         requests = {
           memory = "2Gi"
-          cpu    = "1"
+          cpu    = "500m"
         }
         limits = {
           memory = "4Gi"
-          cpu    = "2"
+          cpu    = "2000m"
         }
       }
       postgresql = {
         maxConnections = 500
-        sharedBuffers  = "512MB"
+        sharedBuffers  = "1GB"
       }
     }
     volumePermissions = {
+      enabled = false
+    }
+    podSecurityContext = {
       enabled = true
-      containerSecurityContext = {
-        runAsUser  = 0
-        runAsGroup = 0
-      }
+      fsGroup = 1001
+    }
+    containerSecurityContext = {
+      enabled = true
+      runAsUser = 1001
+      runAsNonRoot = true
     }
     tls = {
       enabled = false
@@ -64,9 +69,9 @@ locals {
 resource "helm_release" "postgresql" {
   name = "postgres"
 
-  repository = "oci://registry-1.docker.io/"
-  chart      = "bitnamicharts/postgresql"
-  version    = "16.4.5"
+  repository = "https://charts.bitnami.com/bitnami"
+  chart      = "postgresql"
+  version    = "18.0.15"
 
   namespace = var.namespace
   values = [

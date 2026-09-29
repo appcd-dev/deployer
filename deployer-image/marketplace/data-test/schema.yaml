@@ -21,7 +21,7 @@ properties:
     type: string
     title: Global Static IP Name
     description: The name of the global static IP reserved in your GCP account. This IP is used for associating with GCE Ingress.
-    default: 34.8.2.217
+    default: "stackgen-static-ip"
   guildEnabled:
     type: boolean
     title: Enable Guild routing
