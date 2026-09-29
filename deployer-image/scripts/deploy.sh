@@ -49,6 +49,30 @@ STACKGEN_PAT=${STACKGEN_PAT:-$(yq '.stackgenPat' $VALUES_FILE)}
 PRE_SHARED_CERT_NAME=${PRE_SHARED_CERT_NAME:-$(yq '.pre_shared_cert_name' $VALUES_FILE)}
 GLOBAL_STATIC_IP_NAME=${GLOBAL_STATIC_IP_NAME:-$(yq '.global_static_ip_name' $VALUES_FILE)}
 
+# Marketplace component pins feed both Helm and the proxy /version.json response.
+APPCD_VERSION=${APPCD_VERSION:-$(yq '.appcdVersion // "v2025.1.3"' "$VALUES_FILE")}
+IACGEN_VERSION=${IACGEN_VERSION:-$(yq '.iacgenVersion // "v0.22.0"' "$VALUES_FILE")}
+UI_VERSION=${UI_VERSION:-$(yq '.uiVersion // "v0.10.11"' "$VALUES_FILE")}
+EXPORTER_VERSION=${EXPORTER_VERSION:-$(yq '.exporterVersion // "v0.4.0"' "$VALUES_FILE")}
+LLM_GATEWAY_VERSION=${LLM_GATEWAY_VERSION:-$(yq '.llmGatewayVersion // "v0.2.3"' "$VALUES_FILE")}
+VAULT_VERSION=${VAULT_VERSION:-$(yq '.vaultVersion // "v0.1.0"' "$VALUES_FILE")}
+GUILD_ENABLED=${GUILD_ENABLED:-$(yq '.guildEnabled // false' "$VALUES_FILE")}
+GUILD_VERSION=${GUILD_VERSION:-$(yq '.guildVersion // "v0.2.28-hotfix.4"' "$VALUES_FILE")}
+GATEWAY_VERSION=${GATEWAY_VERSION:-$(yq '.gatewayVersion // "v0.2.28-hotfix.2"' "$VALUES_FILE")}
+GUILD_UI_VERSION=${GUILD_UI_VERSION:-$(yq '.guildUiVersion // "v0.2.28-hotfix.2"' "$VALUES_FILE")}
+if [ "$GUILD_ENABLED" != "true" ]; then
+  GUILD_VERSION=disabled
+  GATEWAY_VERSION=disabled
+  GUILD_UI_VERSION=disabled
+fi
+# Render the default component pins into the Terraform input object.
+COMPONENT_VERSIONS=$(jq -cn \
+  --arg appcd "$APPCD_VERSION" --arg iacgen "$IACGEN_VERSION" \
+  --arg ui "$UI_VERSION" --arg exporter "$EXPORTER_VERSION" \
+  --arg llm_gateway "$LLM_GATEWAY_VERSION" --arg vault "$VAULT_VERSION" \
+  --arg guild "$GUILD_VERSION" --arg gateway "$GATEWAY_VERSION" --arg guild_ui "$GUILD_UI_VERSION" \
+  '{appcd:$appcd,iacgen:$iacgen,ui:$ui,exporter:$exporter,llm_gateway:$llm_gateway,vault:$vault,guild:$guild,gateway:$gateway,guild_ui:$guild_ui}')
+
 # Debug: Print extracted values
 echo "[INFO] Extracted values:"
 echo "  SUFFIX: $SUFFIX"
@@ -79,13 +103,15 @@ terraform apply \
   -var "STACKGEN_PAT=${STACKGEN_PAT}" \
   -var "pre_shared_cert_name=${PRE_SHARED_CERT_NAME}" \
   -var "global_static_ip_name=${GLOBAL_STATIC_IP_NAME}" \
+  -var "guild_enabled=${GUILD_ENABLED}" \
+  -var "component_versions=${COMPONENT_VERSIONS}" \
   -auto-approve
 
 EXIT_CODE=$?
 if [ $EXIT_CODE -eq 0 ]; then
   echo "[INFO] Terraform apply complete at $(date)!"
   echo "[INFO] Deployment completed successfully. Checking deployed resources..."
-  
+
   # Output pod statuses to stdout so they're captured in logs
   # This helps diagnose why wait_for_ready.py might timeout
   if command -v kubectl >/dev/null 2>&1; then
@@ -94,21 +120,21 @@ if [ $EXIT_CODE -eq 0 ]; then
     if [ -f /var/run/secrets/kubernetes.io/serviceaccount/namespace ]; then
       namespace=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace 2>/dev/null || echo "")
     fi
-    
+
     echo "[INFO] ========== POST-DEPLOYMENT STATUS CHECK =========="
-    
+
     # Check stackgen namespace pods
     if kubectl get namespace stackgen >/dev/null 2>&1; then
       echo "[INFO] --- Pods in stackgen namespace ---"
       kubectl get pods -n stackgen -o wide 2>&1 | tee /dev/stderr || true
-      
+
       echo "[INFO] --- Pod status details ---"
       for pod in $(kubectl get pods -n stackgen -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo ""); do
         if [ -n "$pod" ]; then
           phase=$(kubectl get pod -n stackgen "$pod" -o jsonpath='{.status.phase}' 2>&1 || echo "Unknown")
           ready=$(kubectl get pod -n stackgen "$pod" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>&1 || echo "Unknown")
           echo "[INFO] Pod: $pod | Phase: $phase | Ready: $ready"
-          
+
           # If pod is not ready, show why
           if [ "$ready" != "True" ] && [ "$phase" != "Running" ]; then
             echo "[WARNING] Pod $pod is not ready. Showing details:"
@@ -118,25 +144,25 @@ if [ $EXIT_CODE -eq 0 ]; then
           fi
         fi
       done
-      
+
       # Show events
       echo "[INFO] --- Recent events in stackgen namespace ---"
       kubectl get events -n stackgen --sort-by='.lastTimestamp' 2>&1 | tail -20 | tee /dev/stderr || true
     else
       echo "[WARNING] stackgen namespace does not exist - this may indicate a deployment issue"
     fi
-    
+
     # Show current namespace resources if available
     if [ -n "$namespace" ]; then
       echo "[INFO] --- Jobs in current namespace ($namespace) ---"
       kubectl get jobs -n "$namespace" -o wide 2>&1 | tee /dev/stderr || true
     fi
-    
+
     echo "[INFO] ========== END POST-DEPLOYMENT STATUS CHECK =========="
   else
     echo "[WARNING] kubectl not available - skipping pod status check"
   fi
-  
+
   echo "[INFO] Deployment script completed successfully at $(date)"
 else
   echo "[ERROR] ========== TERRAFORM APPLY FAILED =========="

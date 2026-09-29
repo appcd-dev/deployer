@@ -52,7 +52,7 @@ install:
 
 
 
-verify: 
+verify:
 	@echo "Verifying application with deployer: $(DEPLOYER_IMAGE_RELEASE)"
 	$(MPDEV) verify --deployer=$(DEPLOYER_IMAGE_RELEASE)
 

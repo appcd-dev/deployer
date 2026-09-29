@@ -28,6 +28,8 @@ module "stackgen" {
   suffix                = var.suffix
   global_static_ip_name = var.global_static_ip_name
   pre_shared_cert_name  = var.pre_shared_cert_name
+  component_versions    = var.component_versions
+  guild_enabled         = var.guild_enabled
   nginx_config          = var.nginx_config
   enable_feature        = var.enable_feature
 }

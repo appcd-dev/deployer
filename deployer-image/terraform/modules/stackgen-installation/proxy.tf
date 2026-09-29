@@ -8,8 +8,11 @@ resource "kubernetes_config_map" "proxy_config" {
   data = {
     "nginx.conf" = join("\n", compact([
       templatefile("./values/proxy-base.conf.tpl", {
-        domain    = var.domain,
-        namespace = var.namespace
+        domain             = var.domain,
+        namespace          = var.namespace,
+        component_versions = var.component_versions,
+        guild_enabled      = var.guild_enabled,
+        stackgen_version   = var.stackgen_version
       }),
       var.stackgen_authentication.type != "none" ? file("${path.module}/dex-config.conf") : null
     ]))

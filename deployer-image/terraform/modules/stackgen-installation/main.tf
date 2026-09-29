@@ -235,6 +235,10 @@ locals {
     nginx : var.nginx_config
     worm_enabled : false
   })
+
+  imagesYAML = templatefile("./values/images.yaml", {
+    component_versions = var.component_versions
+  })
 }
 
 resource "helm_release" "stackgen" {
@@ -247,7 +251,7 @@ resource "helm_release" "stackgen" {
   wait      = true
   values = [
     local.appcdYAML,
-    templatefile("./values/images.yaml", {})
+    local.imagesYAML
   ]
 }
 

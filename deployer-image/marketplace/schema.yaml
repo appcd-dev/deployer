@@ -42,6 +42,47 @@ properties:
     type: string
     title: Global Static IP Name
     description: The name of the global static IP reserved in your GCP account. This IP is used for associating with GCE Ingress.
+  guildEnabled:
+    type: boolean
+    title: Enable Guild routing
+    description: Enable NGINX routes to a StackGen Guild release installed in this namespace.
+    default: false
+  appcdVersion:
+    type: string
+    title: AppCD image version
+    default: v2025.1.3
+  iacgenVersion:
+    type: string
+    title: IAC Gen image version
+    default: v0.22.0
+  uiVersion:
+    type: string
+    title: AppCD UI image version
+    default: v0.10.11
+  exporterVersion:
+    type: string
+    title: Exporter image version
+    default: v0.4.0
+  llmGatewayVersion:
+    type: string
+    title: LLM Gateway image version
+    default: v0.2.3
+  vaultVersion:
+    type: string
+    title: Vault image version
+    default: v0.1.0
+  guildVersion:
+    type: string
+    title: Guild image version
+    default: v0.2.28-hotfix.4
+  gatewayVersion:
+    type: string
+    title: Guild Gateway image version
+    default: v0.2.28-hotfix.2
+  guildUiVersion:
+    type: string
+    title: Guild UI image version
+    default: v0.2.28-hotfix.2
   operatorServiceAccount:
       type: string
       title: Operator Service Account

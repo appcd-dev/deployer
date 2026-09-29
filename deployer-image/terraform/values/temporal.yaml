@@ -29,7 +29,7 @@ server:
       interval: 30s
       additionalLabels:
         release: kube-prometheus-stack
-      
+
     prometheus:
       timerType: histogram
   podAnnotations:

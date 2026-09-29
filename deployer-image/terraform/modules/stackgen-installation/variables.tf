@@ -39,9 +39,9 @@ variable "enable_ops" {
 
 
 variable "stackgen_version" {
-  description = "The version of the appcd to deploy"
+  description = "The appcd-dist Helm chart version to deploy"
   type        = string
-  default     = "0.10.1"
+  default     = "0.17.6"
 }
 
 variable "enable_feature" {
@@ -135,6 +135,27 @@ variable "storage" {
     volume = ""
   }
 }
+variable "component_versions" {
+  description = "Image versions pinned by the deployment and returned from /version.json."
+  type = object({
+    appcd       = optional(string, "v2025.1.3")
+    iacgen      = optional(string, "v0.22.0")
+    ui          = optional(string, "v0.10.11")
+    exporter    = optional(string, "v0.4.0")
+    llm_gateway = optional(string, "v0.2.3")
+    vault       = optional(string, "v0.1.0")
+    guild       = optional(string, "v0.2.28-hotfix.4")
+    gateway     = optional(string, "v0.2.28-hotfix.2")
+    guild_ui    = optional(string, "v0.2.28-hotfix.2")
+  })
+  default = {}
+}
+variable "guild_enabled" {
+  description = "Enable nginx routes for Guild services installed separately in this namespace."
+  type        = bool
+  default     = false
+}
+
 variable "global_static_ip_name" {
   type = string
 }
