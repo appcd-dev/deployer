@@ -30,7 +30,9 @@ variable "component_versions" {
     exporter    = optional(string, "v0.4.0")
     llm_gateway = optional(string, "v0.2.3")
     vault       = optional(string, "v0.1.0")
-    guild       = optional(string, "disabled")
+    guild       = optional(string, "v0.2.28-hotfix.4")
+    gateway     = optional(string, "v0.2.28-hotfix.2")
+    guild_ui    = optional(string, "v0.2.28-hotfix.2")
   })
   default = {}
 }

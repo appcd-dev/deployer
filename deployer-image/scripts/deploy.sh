@@ -18,10 +18,16 @@ UI_VERSION=${UI_VERSION:-$(yq '.uiVersion // "v0.10.11"' "$VALUES_FILE")}
 EXPORTER_VERSION=${EXPORTER_VERSION:-$(yq '.exporterVersion // "v0.4.0"' "$VALUES_FILE")}
 LLM_GATEWAY_VERSION=${LLM_GATEWAY_VERSION:-$(yq '.llmGatewayVersion // "v0.2.3"' "$VALUES_FILE")}
 VAULT_VERSION=${VAULT_VERSION:-$(yq '.vaultVersion // "v0.1.0"' "$VALUES_FILE")}
-GUILD_VERSION=${GUILD_VERSION:-$(yq '.guildVersion // "disabled"' "$VALUES_FILE")}
-GATEWAY_VERSION=${GATEWAY_VERSION:-$(yq '.guildGatewayVersion // "disabled"' "$VALUES_FILE")}
-GUILD_UI_VERSION=${GUILD_UI_VERSION:-$(yq '.guildUiVersion // "disabled"' "$VALUES_FILE")}
 GUILD_ENABLED=${GUILD_ENABLED:-$(yq '.guildEnabled // false' "$VALUES_FILE")}
+GUILD_VERSION=${GUILD_VERSION:-$(yq '.guildVersion // "v0.2.28-hotfix.4"' "$VALUES_FILE")}
+GATEWAY_VERSION=${GATEWAY_VERSION:-$(yq '.gatewayVersion // "v0.2.28-hotfix.2"' "$VALUES_FILE")}
+GUILD_UI_VERSION=${GUILD_UI_VERSION:-$(yq '.guildUiVersion // "v0.2.28-hotfix.2"' "$VALUES_FILE")}
+if [ "$GUILD_ENABLED" != "true" ]; then
+  GUILD_VERSION=disabled
+  GATEWAY_VERSION=disabled
+  GUILD_UI_VERSION=disabled
+fi
+# Render the default component pins into the Terraform input object.
 COMPONENT_VERSIONS=$(jq -cn \
   --arg appcd "$APPCD_VERSION" --arg iacgen "$IACGEN_VERSION" \
   --arg ui "$UI_VERSION" --arg exporter "$EXPORTER_VERSION" \

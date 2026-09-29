@@ -73,7 +73,9 @@ server {
           "exporter" = component_versions.exporter,
           "llm-gateway" = component_versions.llm_gateway,
           "vault" = component_versions.vault,
-          "guild" = guild_enabled ? component_versions.guild : "disabled"
+          "guild" = guild_enabled ? component_versions.guild : "disabled",
+          "guild-gateway" = guild_enabled ? component_versions.gateway : "disabled",
+          "guild-ui" = guild_enabled ? component_versions.guild_ui : "disabled"
         })}';
     }
 

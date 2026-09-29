@@ -54,12 +54,12 @@ properties:
   guildVersion:
     type: string
     title: Guild image version
-    default: disabled
-  guildGatewayVersion:
+    default: v0.2.28-hotfix.4
+  gatewayVersion:
     type: string
     title: Guild Gateway image version
-    default: disabled
+    default: v0.2.28-hotfix.2
   guildUiVersion:
     type: string
     title: Guild UI image version
-    default: disabled
+    default: v0.2.28-hotfix.2

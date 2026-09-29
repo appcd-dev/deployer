@@ -42,7 +42,7 @@ spec:
             - name: GUILD_VERSION
               value: "$guildVersion"
             - name: GATEWAY_VERSION
-              value: "$guildGatewayVersion"
+              value: "$gatewayVersion"
             - name: GUILD_UI_VERSION
               value: "$guildUiVersion"
           volumeMounts:
