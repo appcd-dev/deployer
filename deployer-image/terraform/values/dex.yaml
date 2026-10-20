@@ -10,7 +10,7 @@ envFrom:
       name: appcd-scm-secrets
   - secretRef:
       name: appcd-secrets
-replicaCount: 2
+replicaCount: 1
 https:
   enabled: false
 ingress:
