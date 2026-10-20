@@ -11,16 +11,16 @@ RUN apk add --no-cache yq && \
     yq -i ".properties.stackgenPat.default = \"$GH_TOKEN\"" schema.yaml
     
 # Stage 1: Preprocessing schema.yaml
-FROM marketplace.gcr.io/google/debian11 AS build
+FROM debian:bookworm-slim AS build
 
 # Install tools for envsubst.
-# Debian 11 (bullseye) LTS has ended and its security Release file expired on
-# 2026-09-07, so apt rejects the index and the build fails. Skip only the expiry
-# check — GPG signature verification still applies. This stage is build-only:
-# its sole output is /workspace/schema.yaml, so nothing here ships in the image.
-# TODO: move this stage off EOL bullseye (OPS-1744 follow-up).
-RUN apt-get -o Acquire::Check-Valid-Until=false update && \
-    apt-get install -y --no-install-recommends gettext && \
+# Moved off EOL Debian 11 (bullseye): its security Release file expired
+# on 2026-09-07 (OPS-1744), which broke apt in this stage (CI run
+# 34194507632) and forced the Acquire::Check-Valid-Until=false bypass
+# (appcd-dev/deployer#15). Debian 12 (bookworm) is in active support,
+# so the bypass is no longer needed. This stage is build-only: its sole
+# output is /workspace/schema.yaml, so nothing here ships in the image.
+RUN apt-get update && apt-get install -y --no-install-recommends gettext && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy schema.yaml and preprocess it with envsubst
